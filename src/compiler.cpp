@@ -1,6 +1,6 @@
 #include "compiler.h"
 
-BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8::Isolate* isolate, v8::ScriptOrigin& origin, const char* sourceCode)
+extern BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8::Isolate* isolate, v8::ScriptOrigin& origin, const char* sourceCode)
 {
     v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode).ToLocalChecked(), origin);
     auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
