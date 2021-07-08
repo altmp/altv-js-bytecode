@@ -5,10 +5,15 @@ namespace BytecodeCompiler
 {
     struct Bytecode
     {
-        v8::ScriptCompiler::CachedData* bytecode;
+        uint8_t* bytecode;
+        int size;
         uint32_t version;
 
-        Bytecode(v8::ScriptCompiler::CachedData* bytecode, uint32_t version) : bytecode(bytecode), version(version) {}
+        Bytecode(v8::ScriptCompiler::CachedData* data) : size(data->length), version(GetVersion()) 
+        {
+            bytecode = new uint8_t[data->length];
+            memcpy(bytecode, data->data, data->length);
+        }
         ~Bytecode() { delete bytecode; }
     };
 
