@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.10)
 include(FetchContent)
 
-project("altv-js-bytecode-compiler")
+project("altv-js-bytecode")
 
 # Fetch v8 from the Client JS repo
 message("Fetching v8 from Client JS...")
