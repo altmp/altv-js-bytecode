@@ -20,7 +20,8 @@ extern BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8
 	);
     std::cout << scriptOrigin.Options().IsModule() << std::endl;
     v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode).ToLocalChecked(), scriptOrigin);
-    auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
+    std::cout << source.GetResourceOptions().IsModule() << std::endl;
+    auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::CompileOptions::kNoCompileOptions);
     auto module = maybeModule.ToLocalChecked();
     auto unboundScript = module->GetUnboundModuleScript();
     auto data = v8::ScriptCompiler::CreateCodeCache(unboundScript);
