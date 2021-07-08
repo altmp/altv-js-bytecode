@@ -7,6 +7,9 @@ namespace BytecodeCompiler
     {
         v8::ScriptCompiler::CachedData* bytecode;
         uint32_t version;
+
+        Bytecode(v8::ScriptCompiler::CachedData* bytecode, uint32_t version) : bytecode(bytecode), version(version) {}
+        ~Bytecode() { delete bytecode; }
     };
 
     extern uint32_t GetVersion();
