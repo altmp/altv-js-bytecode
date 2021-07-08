@@ -18,5 +18,5 @@ namespace BytecodeCompiler
     };
 
     extern uint32_t GetVersion();
-    extern Bytecode* CompileSourceIntoBytecode(v8::Isolate* isolate, v8::ScriptOrigin& origin, const char* sourceCode);
+    extern Bytecode CompileSourceIntoBytecode(v8::Isolate* isolate, v8::ScriptOrigin& origin, const char* sourceCode);
 }
