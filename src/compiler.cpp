@@ -3,6 +3,7 @@
 
 extern BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode)
 {
+    v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope scope(isolate);
 
@@ -18,9 +19,7 @@ extern BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8
 		true,
 		v8::Local<v8::PrimitiveArray>()
 	);
-    std::cout << scriptOrigin.Options().IsModule() << std::endl;
     v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode).ToLocalChecked(), scriptOrigin);
-    std::cout << source.GetResourceOptions().IsModule() << std::endl;
     auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::CompileOptions::kNoCompileOptions);
     auto module = maybeModule.ToLocalChecked();
     auto unboundScript = module->GetUnboundModuleScript();
