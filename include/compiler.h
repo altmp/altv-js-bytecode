@@ -20,5 +20,5 @@ namespace BytecodeCompiler
         ~Bytecode() { delete bytecode; }
     };
 
-    extern Bytecode CompileSourceIntoBytecode(v8::Isolate* isolate, v8::ScriptOrigin& origin, const char* sourceCode);
+    extern Bytecode CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode);
 }
