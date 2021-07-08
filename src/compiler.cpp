@@ -19,8 +19,8 @@ extern BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8
 		true,
 		v8::Local<v8::PrimitiveArray>()
 	);
-    v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode).ToLocalChecked(), scriptOrigin);
-    auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source, v8::ScriptCompiler::CompileOptions::kNoCompileOptions);
+    v8::ScriptCompiler::Source compilerSource(v8::String::NewFromUtf8(isolate, sourceCode).ToLocalChecked(), scriptOrigin);
+    auto maybeModule = v8::ScriptCompiler::CompileModule(isolate, &compilerSource, v8::ScriptCompiler::CompileOptions::kNoCompileOptions);
     auto module = maybeModule.ToLocalChecked();
     auto unboundScript = module->GetUnboundModuleScript();
     auto data = v8::ScriptCompiler::CreateCodeCache(unboundScript);
