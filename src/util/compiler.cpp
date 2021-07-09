@@ -1,7 +1,7 @@
 #include "compiler.h"
 #include <iostream>
 
-BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode)
+v8::ScriptCompiler::CachedData* BytecodeCompiler::CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode)
 {
     v8::Locker locker(isolate);
     v8::Isolate::Scope isolateScope(isolate);
@@ -26,5 +26,5 @@ BytecodeCompiler::Bytecode BytecodeCompiler::CompileSourceIntoBytecode(v8::Isola
         ToLocalChecked()->
         GetUnboundModuleScript();
     auto data = v8::ScriptCompiler::CreateCodeCache(script);
-    return BytecodeCompiler::Bytecode{ data };
+    return data;
 }

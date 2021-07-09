@@ -1,5 +1,4 @@
 #include "resource.h"
-#include "bytecode.h"
 #include "util/compiler.h"
 #include <sstream>
 
@@ -16,11 +15,12 @@ bool JSBytecodeResource::MakeClient(alt::IResource::CreationInfo *info, alt::Arr
 	alt::String source(info->pkg->GetFileSize(file));
 	info->pkg->ReadFile(file, source.GetData(), source.GetSize());
     auto bytecode = BytecodeCompiler::CompileSourceIntoBytecode(isolate, info->main.CStr(), source.CStr());
-    info->pkg->WriteFile(file, (void*)&bytecode, sizeof(BytecodeCompiler::Bytecode));
+    std::cout << "Bytecode: " << (uintptr_t)bytecode->data << std::endl;
+    info->pkg->WriteFile(file, (void*)bytecode->data, bytecode->length);
     info->pkg->CloseFile(file);
 
     std::stringstream stream;
-    stream << __FUNCTION__ << " " << "size: " << bytecode.size;
+    stream << __FUNCTION__ << " " << "size: " << bytecode->length;
     alt::ICore::Instance().LogWarning(stream.str());
 
     return true;

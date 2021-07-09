@@ -1,8 +1,8 @@
 #pragma once
 
-#include "bytecode.h"
+#include "v8.h"
 
 namespace BytecodeCompiler 
 {
-    Bytecode CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode);
+    v8::ScriptCompiler::CachedData* CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode);
 };

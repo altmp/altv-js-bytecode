@@ -31,7 +31,6 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
-  "include"
   deps
   ${ALTV_JS_DL_DEPS}/include
 )
