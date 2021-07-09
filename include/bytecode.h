@@ -3,13 +3,16 @@
 
 namespace BytecodeCompiler 
 {
-    extern uint32_t GetVersion();
+    inline uint32_t GetVersion() 
+    {
+        return v8::ScriptCompiler::CachedDataVersionTag();
+    }
 
     struct Bytecode
     {
-        uint8_t* bytecode;
-        int size;
         uint32_t version;
+        int size;
+        uint8_t* bytecode;
 
         Bytecode(v8::ScriptCompiler::CachedData* data) : size(data->length), version(BytecodeCompiler::GetVersion()) 
         {
@@ -19,6 +22,4 @@ namespace BytecodeCompiler
         Bytecode() : bytecode(nullptr), size(0), version(0) {}
         ~Bytecode() { delete bytecode; }
     };
-
-    extern Bytecode CompileSourceIntoBytecode(v8::Isolate* isolate, const char* name, const char* sourceCode);
 }

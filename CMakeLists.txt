@@ -11,7 +11,7 @@ FetchContent_Declare(altv-js-deps
 FetchContent_Populate(altv-js-deps)
 set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
 
-file(GLOB_RECURSE PROJECT_SOURCE_FILES "include/*.h" "src/*.cpp")
+file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp" "include/*.h")
 
 macro(GroupSources curdir groupindex)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -32,6 +32,7 @@ GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
   "include"
+  deps
   ${ALTV_JS_DL_DEPS}/include
 )
 
@@ -52,6 +53,9 @@ set(ALTV_JS_DEFS
   # Platform
   -DUNICODE
   -D_UNICODE
+
+  # alt:V
+  -DALT_SERVER_API
 
   # v8
   -DV8_COMPRESS_POINTERS
