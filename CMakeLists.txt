@@ -1,15 +1,15 @@
 cmake_minimum_required (VERSION 3.10)
 include(FetchContent)
+include(cmake/DepsDownload.cmake)
 
 project("altv-js-bytecode")
 
-# Fetch v8 from the Client JS repo
-message("Fetching v8 from Client JS...")
-FetchContent_Declare(altv-js-deps
-  URL     https://github.com/altmp/altv-client-js/releases/download/deps3/deps.zip
-)
-FetchContent_Populate(altv-js-deps)
-set(ALTV_JS_DL_DEPS ${altv-js-deps_SOURCE_DIR})
+set(DEPS_FOLDER ${PROJECT_SOURCE_DIR}/deps)
+
+# Fetch v8
+message("alt:V JS - Fetching v8 deps, can take a while")
+
+DownloadDeps(${DEPS_FOLDER})
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp" "include/*.h")
 
@@ -32,7 +32,7 @@ GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
   deps
-  ${ALTV_JS_DL_DEPS}/include
+  "include"
 )
 
 set(ALTV_JS_LINKS
@@ -42,7 +42,7 @@ set(ALTV_JS_LINKS
   shlwapi.lib
 
   # V8
-  ${ALTV_JS_DL_DEPS}/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
+  ${DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
 )
 
 set(ALTV_JS_DEFS

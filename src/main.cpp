@@ -13,5 +13,5 @@ EXPORT bool altMain(alt::ICore* core)
 
 EXPORT uint32_t GetSDKVersion()
 {
-	return alt::ICore::SDK_VERSION;
+    return alt::ICore::SDK_VERSION;
 }

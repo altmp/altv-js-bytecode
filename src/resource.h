@@ -13,5 +13,5 @@ class JSBytecodeResource : public alt::IResource::Impl
 public:
     JSBytecodeResource(alt::IResource* resource, v8::Isolate* isolate) : resource(resource), isolate(isolate) {}
 
-    bool MakeClient(alt::IResource::CreationInfo *info, alt::Array<alt::String> files) override;
+    bool WriteClientFile(alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size) override;
 };

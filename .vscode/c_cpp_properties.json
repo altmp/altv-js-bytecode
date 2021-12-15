@@ -1,22 +1,22 @@
 {
     "configurations": [
-      {
-        "name": "Win32 Static",
-        "includePath": [
-          "${workspaceFolder}/**"
-        ],
-        "defines": [
-          "_DEBUG",
-          "UNICODE",
-          "_UNICODE",
-          "ALT_SERVER_API"
-        ],
-        "windowsSdkVersion": "10.0.19041.0",
-        "cStandard": "c11",
-        "cppStandard": "c++17",
-        "intelliSenseMode": "msvc-x64"
-      }
+        {
+            "name": "Win32 Static",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "ALT_SERVER_API"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "msvc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
     ],
     "version": 4
-  }
-  
+}
