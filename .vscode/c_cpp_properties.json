@@ -3,7 +3,8 @@
         {
             "name": "Win32 Static",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/deps/v8/include"
             ],
             "defines": [
                 "_DEBUG",
