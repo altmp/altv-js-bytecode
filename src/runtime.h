@@ -14,15 +14,18 @@ class JSBytecodeRuntime : public alt::IScriptRuntime
 public:
     JSBytecodeRuntime();
 
-    v8::Isolate* GetIsolate() { return isolate; }
+    v8::Isolate* GetIsolate()
+    {
+        return isolate;
+    }
 
-    alt::IResource::Impl *CreateImpl(alt::IResource *resource) override
-	{
-		return new JSBytecodeResource(resource, isolate);
-	}
+    alt::IResource::Impl* CreateImpl(alt::IResource* resource) override
+    {
+        return new JSBytecodeResource(resource, isolate);
+    }
 
-	void DestroyImpl(alt::IResource::Impl *impl) override 
-    { 
+    void DestroyImpl(alt::IResource::Impl* impl) override
+    {
         auto res = static_cast<JSBytecodeResource*>(impl);
         delete res;
     }

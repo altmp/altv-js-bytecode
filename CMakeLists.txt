@@ -31,8 +31,9 @@ endmacro()
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
 
 include_directories(
-  deps
+  "deps"
   "include"
+  "deps/v8/include"
 )
 
 set(ALTV_JS_LINKS
