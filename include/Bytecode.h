@@ -29,8 +29,8 @@ struct Bytecode
 
     std::pair<uint8_t*, size_t> ToBuffer()
     {
-        size_t size = sizeof(Bytecode) - sizeof(data) + size;
-        uint8_t* buffer = new uint8_t[size];
+        size_t bufferSize = sizeof(Bytecode) - sizeof(data) + size;
+        uint8_t* buffer = new uint8_t[bufferSize];
         memcpy(buffer, &version, sizeof(version));
         memcpy(buffer + sizeof(version), &size, sizeof(size));
         size_t offset = sizeof(version) + sizeof(size);
@@ -38,7 +38,7 @@ struct Bytecode
         {
             buffer[offset + i] = data[i];
         }
-        return std::make_pair(buffer, size);
+        return std::make_pair(buffer, bufferSize);
     }
 
     static Bytecode FromBuffer(const uint8_t* buffer, size_t size)
