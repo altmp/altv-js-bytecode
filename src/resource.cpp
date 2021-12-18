@@ -39,7 +39,7 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
         return false;
     }
 
-    BytecodeCompiler::Bytecode bytecode(BytecodeCompiler::currentVersion, cache->length, cache->data);
+    Bytecode bytecode(cache->length, cache->data);
     // Bytecode struct copies the data, so we delete the cached data here
     delete cache;
     if(!bytecode.IsValid())
@@ -55,15 +55,9 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
     }
 
     // Copy the bytecode data to a new buffer
-    /*uint8_t* buf = new uint8_t[sizeof(BytecodeCompiler::Bytecode) - sizeof(bytecode.data) + bytecode.size];
-    memcpy(buf, &bytecode.version, sizeof(bytecode.version));
-    memcpy(buf + sizeof(bytecode.version), &bytecode.size, sizeof(bytecode.size));
-    size_t offset = sizeof(bytecode.version) + sizeof(bytecode.size);
-    for(size_t i = 0; i < bytecode.size; ++i)
-    {
-        buf[offset + i] = bytecode.data[i];
-    }
-    package->WriteFile(file, buf, offset + bytecode.size);*/
+    auto result = bytecode.ToBuffer();
+    package->WriteFile(file, result.first, result.second);
+    delete result.first;
 
     return true;
 }
