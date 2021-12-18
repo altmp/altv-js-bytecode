@@ -44,6 +44,7 @@ struct Bytecode
     static Bytecode FromBuffer(const uint8_t* buffer, size_t size)
     {
         Bytecode bytecode;
+        if(size < sizeof(bytecode)) return bytecode;
         memcpy(&bytecode.version, buffer, sizeof(bytecode.version));
         memcpy(&bytecode.size, buffer + sizeof(bytecode.version), sizeof(bytecode.size));
         bytecode.data = new uint8_t[bytecode.size];
