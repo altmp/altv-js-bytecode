@@ -8,11 +8,17 @@
 
 bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
 {
+    alt::ICore::Instance().LogWarning(__FUNCTION__);
     std::filesystem::path path(fileName);
     if(path.extension() != ".js") return false;
+    alt::ICore::Instance().LogWarning(fileName);
 
     JSBytecodeRuntime& runtime = JSBytecodeRuntime::Instance();
-    v8::ScriptOrigin origin(runtime.GetIsolate(),
+    v8::Isolate* isolate = runtime.GetIsolate();
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+
+    v8::ScriptOrigin origin(isolate,
                             v8::String::NewFromUtf8(runtime.GetIsolate(), fileName.c_str()).ToLocalChecked(),
                             0,
                             0,
@@ -39,14 +45,6 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
         return false;
     }
 
-    Bytecode bytecode(cache->length, cache->data);
-    // Bytecode struct copies the data, so we delete the cached data here
-    delete cache;
-    if(!bytecode.IsValid())
-    {
-        alt::ICore::Instance().LogError("[V8 Bytecode] Failed to create bytecode: " + fileName);
-        return false;
-    }
     alt::IPackage::File* file = package->OpenFile(fileName);
     if(!file)
     {
@@ -54,11 +52,19 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
         return false;
     }
 
-    // Copy the bytecode data to a new buffer
-    auto result = bytecode.ToBuffer();
-    package->WriteFile(file, result.first, result.second);
-    delete result.first;
+    package->WriteFile(file, (void*)cache->data, cache->length);
+    package->CloseFile(file);
 
+    delete cache;
+
+    return true;
+}
+
+bool JSBytecodeResource::Start()
+{
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+    context.Reset(isolate, v8::Context::New(isolate));
     return true;
 }
 

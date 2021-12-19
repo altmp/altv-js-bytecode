@@ -69,7 +69,8 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "xlocbuf": "cpp",
-        "xlocmes": "cpp"
+        "xlocmes": "cpp",
+        "filesystem": "cpp"
     },
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true
