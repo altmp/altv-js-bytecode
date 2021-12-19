@@ -5,6 +5,15 @@
 #include <fstream>
 #include <filesystem>
 
+// Replicates the V8 'SerializedCodeData::SourceHash' function
+inline uint32_t CreateV8SourceHash(const std::string& src)
+{
+    uint32_t size = (uint32_t)src.size();
+    // We always use modules, so this flag is always used
+    static constexpr uint32_t moduleFlagMask = (1 << 31);
+    return size | moduleFlagMask;
+}
+
 bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
 {
     std::filesystem::path path(fileName);
@@ -47,6 +56,29 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
     {
         alt::ICore::Instance().LogError("[V8 Bytecode] Failed to open file: " + fileName);
         return false;
+    }
+
+    // Copy hash of empty source file into bytecode source hash section
+    // Needed because V8 compares the bytecode code hash to provided source hash
+    static uint32_t srcHash = CreateV8SourceHash("");
+    static constexpr int srcHashOffset = 8;
+
+    int n = 1;
+    // Little endian
+    if(*(char*)&n == 1)
+    {
+        memcpy((void*)((uintptr_t)cache->data + srcHashOffset), &srcHash, sizeof(srcHash));
+    }
+    // Big endian
+    else
+    {
+        // Code inspired from V8
+        uint8_t* src = reinterpret_cast<uint8_t*>(&srcHash);
+        uint8_t* dst = reinterpret_cast<uint8_t*>((uintptr_t)cache->data + srcHashOffset);
+        for(size_t i = 0; i < sizeof(srcHash); i++)
+        {
+            dst[i] = src[sizeof(srcHash) - i - 1];
+        }
     }
 
     static const char magic[] = { 'A', 'L', 'T', 'B', 'C' };
