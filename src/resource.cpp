@@ -7,10 +7,8 @@
 
 bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
 {
-    alt::ICore::Instance().LogWarning(__FUNCTION__);
     std::filesystem::path path(fileName);
     if(path.extension() != ".js") return false;
-    alt::ICore::Instance().LogWarning(fileName);
 
     JSBytecodeRuntime& runtime = JSBytecodeRuntime::Instance();
     v8::Isolate* isolate = runtime.GetIsolate();
