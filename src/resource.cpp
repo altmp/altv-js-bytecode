@@ -1,6 +1,5 @@
 #include "resource.h"
 #include "runtime.h"
-#include "Bytecode.h"
 
 #include <sstream>
 #include <fstream>
@@ -52,10 +51,17 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
         return false;
     }
 
-    package->WriteFile(file, (void*)cache->data, cache->length);
+    static const char magic[] = { 'A', 'L', 'T', 'B', 'C' };
+    size_t bufSize = sizeof(magic) + cache->length;
+    uint8_t* buf = new uint8_t[bufSize];
+    memcpy(buf, magic, sizeof(magic));
+    memcpy(buf + sizeof(magic), cache->data, cache->length);
+
+    package->WriteFile(file, (void*)buf, bufSize);
     package->CloseFile(file);
 
     delete cache;
+    delete buf;
 
     return true;
 }
