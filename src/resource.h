@@ -17,9 +17,4 @@ public:
     bool Stop() override;
 
     bool WriteClientFile(alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size) override;
-    bool MakeClient(alt::IResource::CreationInfo* info, alt::Array<alt::String> files) override
-    {
-        info->type = "js";
-        return true;
-    }
 };
