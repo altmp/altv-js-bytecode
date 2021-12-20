@@ -14,6 +14,31 @@ inline uint32_t CreateV8SourceHash(const std::string& src)
     return size | moduleFlagMask;
 }
 
+// Code inspired from V8
+inline void CopyBigEndianToLittleEndian(uintptr_t dstPtr, uint32_t val)
+{
+    uint8_t* src = reinterpret_cast<uint8_t*>(&val);
+    uint8_t* dst = reinterpret_cast<uint8_t*>(dstPtr);
+    for(size_t i = 0; i < sizeof(val); i++)
+    {
+        dst[i] = src[sizeof(val) - i - 1];
+    }
+}
+
+inline void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val)
+{
+    bool isLittleEndian = true;
+    {
+        int n = 1;
+        isLittleEndian = *(char*)&n == 1;
+    }
+
+    uintptr_t dst = (uintptr_t)buffer + offset;
+    if(isLittleEndian) memcpy((void*)(dst), &val, sizeof(val));
+    else
+        CopyBigEndianToLittleEndian(dst, val);
+}
+
 bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
 {
     std::filesystem::path path(fileName);
@@ -62,24 +87,13 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
     // Needed because V8 compares the bytecode code hash to provided source hash
     static uint32_t srcHash = CreateV8SourceHash("");
     static constexpr int srcHashOffset = 8;
+    CopyValueToBuffer(cache->data, srcHashOffset, srcHash);
 
-    int n = 1;
-    // Little endian
-    if(*(char*)&n == 1)
-    {
-        memcpy((void*)((uintptr_t)cache->data + srcHashOffset), &srcHash, sizeof(srcHash));
-    }
-    // Big endian
-    else
-    {
-        // Code inspired from V8
-        uint8_t* src = reinterpret_cast<uint8_t*>(&srcHash);
-        uint8_t* dst = reinterpret_cast<uint8_t*>((uintptr_t)cache->data + srcHashOffset);
-        for(size_t i = 0; i < sizeof(srcHash); i++)
-        {
-            dst[i] = src[sizeof(srcHash) - i - 1];
-        }
-    }
+    // Overwrite flags hash with the hash used in client js
+    // !!! Make sure to update the hash if flags in client js change !!!
+    static uint32_t flagsHash = 2065631796;
+    static constexpr int flagsHashOffset = 12;
+    CopyValueToBuffer(cache->data, flagsHashOffset, flagsHash);
 
     static const char magic[] = { 'A', 'L', 'T', 'B', 'C' };
     size_t bufSize = sizeof(magic) + cache->length;
@@ -92,6 +106,8 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
 
     delete cache;
     delete buf;
+
+    alt::ICore::Instance().LogColored("~g~[V8 Bytecode] ~w~Converted file to bytecode: ~lg~" + fileName);
 
     return true;
 }
