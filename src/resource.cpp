@@ -91,7 +91,7 @@ bool JSBytecodeResource::WriteClientFile(alt::IPackage* package, const std::stri
 
     // Overwrite flags hash with the hash used in client js
     // !!! Make sure to update the hash if flags in client js change !!!
-    static uint32_t flagsHash = 2065631796;
+    static uint32_t flagsHash = 1064582566;
     static constexpr int flagsHashOffset = 12;
     CopyValueToBuffer(cache->data, flagsHashOffset, flagsHash);
 
