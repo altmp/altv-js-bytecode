@@ -8,5 +8,5 @@ cmake --build BUILD --config Release
 IF NOT EXIST dist (
     mkdir dist
 )
-copy BUILD\Release\altv-js-bytecode.dll dist
-copy BUILD\Release\altv-js-bytecode.pdb dist
+copy BUILD\Release\js-bytecode-module.dll dist
+copy BUILD\Release\js-bytecode-module.pdb dist
