@@ -14,6 +14,8 @@ class JSBytecodeRuntime : public alt::IScriptRuntime
 public:
     JSBytecodeRuntime();
 
+    void WriteClientFile(alt::IResource* resource, alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size) override;
+
     v8::Isolate* GetIsolate()
     {
         return isolate;
