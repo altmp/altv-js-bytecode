@@ -2,7 +2,6 @@
 
 #include "cpp-sdk/SDK.h"
 #include "v8.h"
-#include "resource.h"
 #include "libplatform/libplatform.h"
 
 class JSBytecodeRuntime : public alt::IScriptRuntime
@@ -23,14 +22,10 @@ public:
 
     alt::IResource::Impl* CreateImpl(alt::IResource* resource) override
     {
-        return new JSBytecodeResource(resource, isolate);
+        return nullptr;
     }
 
-    void DestroyImpl(alt::IResource::Impl* impl) override
-    {
-        auto res = static_cast<JSBytecodeResource*>(impl);
-        delete res;
-    }
+    void DestroyImpl(alt::IResource::Impl* impl) override {}
 
     static JSBytecodeRuntime& Instance()
     {
