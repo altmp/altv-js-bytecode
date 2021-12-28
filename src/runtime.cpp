@@ -50,17 +50,11 @@ inline void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val
         CopyBigEndianToLittleEndian(dst, val);
 }
 
-void JSBytecodeRuntime::WriteClientFile(alt::IResource* resource, alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
+void CompileFilesToBytecode(v8::Isolate* isolate, alt::IResource* resource, alt::IPackage* package, const std::string& fileName, const std::string& sourceCode)
 {
-    std::filesystem::path path(fileName);
-    if(path.extension() != ".js") return;
-    v8::Isolate::Scope isolateScope(isolate);
-    v8::HandleScope handleScope(isolate);
-
     v8::ScriptOrigin origin(
       isolate, v8::String::NewFromUtf8(isolate, fileName.c_str()).ToLocalChecked(), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
-    alt::String sourceCode(reinterpret_cast<char*>(buffer), size);
-    v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode.CStr()).ToLocalChecked(), origin);
+    v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode.c_str()).ToLocalChecked(), origin);
     v8::MaybeLocal<v8::Module> maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
     if(maybeModule.IsEmpty())
     {
@@ -107,4 +101,60 @@ void JSBytecodeRuntime::WriteClientFile(alt::IResource* resource, alt::IPackage*
     delete buf;
 
     alt::ICore::Instance().LogColored("~g~[V8 Bytecode] ~w~Converted file to bytecode: ~lg~" + fileName);
+
+    // Convert file dependencies too
+    v8::Local<v8::Context> ctx = v8::Context::New(isolate);
+    v8::Local<v8::FixedArray> dependencies = module->GetModuleRequests();
+    int length = dependencies->Length();
+    for(int i = 0; i < length; i++)
+    {
+        v8::Local<v8::Data> dep = dependencies->Get(ctx, i);
+        v8::Local<v8::ModuleRequest> request = dep.As<v8::ModuleRequest>();
+        if(request->GetImportAssertions()->Length() > 0) continue;
+
+        v8::Local<v8::String> depStr = request->GetSpecifier();
+        std::string depPath = *v8::String::Utf8Value(isolate, depStr);
+        if(depPath == "alt" || depPath == "alt-client") continue;
+
+        alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource, depPath, fileName);
+        if(!pathInfo.pkg) continue;
+
+        alt::IPackage::File* file = pathInfo.pkg->OpenFile(pathInfo.fileName);
+        size_t fileSize = pathInfo.pkg->GetFileSize(file);
+        std::string buffer;
+        buffer.resize(fileSize);
+        pathInfo.pkg->ReadFile(file, buffer.data(), buffer.size());
+        pathInfo.pkg->CloseFile(file);
+
+        CompileFilesToBytecode(isolate, resource, pathInfo.pkg, (pathInfo.prefix + pathInfo.fileName).ToString(), buffer);
+    }
+}
+
+void JSBytecodeRuntime::WriteClientFile(alt::IResource* resource, alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
+{
+    if(fileName != resource->GetClientMain()) return;
+    v8::Isolate::Scope isolateScope(isolate);
+    v8::HandleScope handleScope(isolate);
+
+    alt::String sourceCode(reinterpret_cast<char*>(buffer), size);
+    CompileFilesToBytecode(isolate, resource, package, fileName, sourceCode.ToString());
+
+    // Read the extra files
+    std::vector<std::string> extraFilePatterns = resource->GetConfigStringList("extra-compile-files");
+    std::unordered_set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
+    for(const std::string& file : files)
+    {
+        alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource, file, "");
+        if(!pathInfo.pkg) continue;
+        alt::IPackage::File* pkgFile = pathInfo.pkg->OpenFile(file);
+        if(!pkgFile) continue;
+
+        size_t fileSize = package->GetFileSize(pkgFile);
+        std::string buffer;
+        buffer.resize(fileSize);
+        pathInfo.pkg->ReadFile(pkgFile, buffer.data(), buffer.size());
+        pathInfo.pkg->CloseFile(pkgFile);
+
+        CompileFilesToBytecode(isolate, resource, pathInfo.pkg, file, buffer);
+    }
 }
