@@ -1,4 +1,5 @@
 #include "runtime.h"
+#include "Log.h"
 
 #include <sstream>
 #include <fstream>
@@ -6,7 +7,7 @@
 
 JSBytecodeRuntime::JSBytecodeRuntime()
 {
-    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --turbo-fast-api-calls --no-lazy --no-flush-bytecode");
+    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy --no-flush-bytecode");
     platform = v8::platform::NewDefaultPlatform();
     v8::V8::InitializePlatform(platform.get());
     v8::V8::Initialize();
@@ -50,7 +51,36 @@ inline void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val
         CopyBigEndianToLittleEndian(dst, val);
 }
 
-void CompileFilesToBytecode(v8::Isolate* isolate, alt::IResource* resource, alt::IPackage* package, const std::string& fileName, const std::string& sourceCode)
+inline std::string GetFileName(alt::IResource* resource, const std::string& name, const std::string& referrer)
+{
+    alt::IPackage::PathInfo path = alt::ICore::Instance().Resolve(resource, name, referrer);
+    if(!path.pkg) return std::string();
+    std::string fileName = path.fileName.ToString();
+    if(fileName.size() == 0)
+    {
+        if(path.pkg->FileExists("index.js")) fileName = "index.js";
+        else if(path.pkg->FileExists("index.mjs"))
+            fileName = "index.mjs";
+        else
+            return std::string();
+    }
+    else
+    {
+        if(path.pkg->FileExists(fileName + ".js")) fileName += ".js";
+        else if(path.pkg->FileExists(fileName + ".mjs"))
+            fileName += ".mjs";
+        else if(path.pkg->FileExists(fileName + "/index.js"))
+            fileName += "/index.js";
+        else if(path.pkg->FileExists(fileName + "/index.mjs"))
+            fileName += "/index.mjs";
+        else if(!path.pkg->FileExists(fileName))
+            return std::string();
+    }
+    return path.prefix.ToString() + fileName;
+}
+
+void CompileFilesToBytecode(
+  v8::Isolate* isolate, alt::IResource* resource, alt::IPackage* package, const std::string& fileName, const std::string& sourceCode, std::vector<std::string>& compiledFiles)
 {
     v8::ScriptOrigin origin(
       isolate, v8::String::NewFromUtf8(isolate, fileName.c_str()).ToLocalChecked(), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
@@ -101,6 +131,7 @@ void CompileFilesToBytecode(v8::Isolate* isolate, alt::IResource* resource, alt:
     delete buf;
 
     alt::ICore::Instance().LogColored("~g~[V8 Bytecode] ~w~Converted file to bytecode: ~lg~" + fileName);
+    compiledFiles.push_back(fileName);
 
     // Convert file dependencies too
     v8::Local<v8::Context> ctx = v8::Context::New(isolate);
@@ -114,7 +145,7 @@ void CompileFilesToBytecode(v8::Isolate* isolate, alt::IResource* resource, alt:
 
         v8::Local<v8::String> depStr = request->GetSpecifier();
         std::string depPath = *v8::String::Utf8Value(isolate, depStr);
-        if(depPath == "alt" || depPath == "alt-client") continue;
+        if(depPath == "alt" || depPath == "alt-client" || depPath == "natives") continue;
 
         alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource, depPath, fileName);
         if(!pathInfo.pkg) continue;
@@ -126,18 +157,28 @@ void CompileFilesToBytecode(v8::Isolate* isolate, alt::IResource* resource, alt:
         pathInfo.pkg->ReadFile(file, buffer.data(), buffer.size());
         pathInfo.pkg->CloseFile(file);
 
-        CompileFilesToBytecode(isolate, resource, pathInfo.pkg, (pathInfo.prefix + pathInfo.fileName).ToString(), buffer);
+        CompileFilesToBytecode(isolate, resource, package, GetFileName(resource, (pathInfo.prefix + pathInfo.fileName).ToString(), ""), buffer, compiledFiles);
     }
 }
 
-void JSBytecodeRuntime::WriteClientFile(alt::IResource* resource, alt::IPackage* package, const std::string& fileName, void* buffer, uint64_t size)
+void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackage* package)
 {
-    if(fileName != resource->GetClientMain()) return;
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
-    alt::String sourceCode(reinterpret_cast<char*>(buffer), size);
-    CompileFilesToBytecode(isolate, resource, package, fileName, sourceCode.ToString());
+    // Keep track of all the files we compiled to bytecode
+    std::vector<std::string> compiledFiles;
+
+    // Read client main file
+    alt::IPackage* resourcePackage = resource->GetPackage();
+    std::string fileName = resource->GetClientMain();
+    alt::IPackage::File* file = resourcePackage->OpenFile(fileName);
+    size_t fileSize = resourcePackage->GetFileSize(file);
+    std::string buffer;
+    buffer.resize(fileSize);
+    resourcePackage->ReadFile(file, buffer.data(), buffer.size());
+    resourcePackage->CloseFile(file);
+    CompileFilesToBytecode(isolate, resource, package, fileName, buffer, compiledFiles);
 
     // Read the extra files
     std::vector<std::string> extraFilePatterns = resource->GetConfigStringList("extra-compile-files");
@@ -149,12 +190,35 @@ void JSBytecodeRuntime::WriteClientFile(alt::IResource* resource, alt::IPackage*
         alt::IPackage::File* pkgFile = pathInfo.pkg->OpenFile(file);
         if(!pkgFile) continue;
 
-        size_t fileSize = package->GetFileSize(pkgFile);
+        size_t fileSize = pathInfo.pkg->GetFileSize(pkgFile);
         std::string buffer;
         buffer.resize(fileSize);
         pathInfo.pkg->ReadFile(pkgFile, buffer.data(), buffer.size());
         pathInfo.pkg->CloseFile(pkgFile);
 
-        CompileFilesToBytecode(isolate, resource, pathInfo.pkg, file, buffer);
+        CompileFilesToBytecode(isolate, resource, resourcePackage, file, buffer, compiledFiles);
     }
+
+    // Write all other files normally
+    const std::unordered_set<std::string>& clientFiles = resource->GetClientFiles();
+    for(const std::string& clientFile : clientFiles)
+    {
+        if(std::find(compiledFiles.begin(), compiledFiles.end(), clientFile) != compiledFiles.end()) continue;
+        alt::IPackage::File* file = resourcePackage->OpenFile(clientFile);
+        size_t fileSize = resourcePackage->GetFileSize(file);
+        std::string buffer;
+        buffer.resize(fileSize);
+        resourcePackage->ReadFile(file, buffer.data(), buffer.size());
+        resourcePackage->CloseFile(file);
+
+        alt::IPackage::File* clientPkgFile = package->OpenFile(clientFile);
+        package->WriteFile(clientPkgFile, buffer.data(), buffer.size());
+        package->CloseFile(clientPkgFile);
+    }
+}
+
+bool JSBytecodeRuntime::GetProcessClientType(std::string& clientType)
+{
+    clientType = "jsb";
+    return true;
 }
