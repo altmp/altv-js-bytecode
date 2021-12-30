@@ -116,6 +116,9 @@ void CompileFilesToBytecode(
     // !!! Make sure to update the hash if flags in client js change !!!
     static uint32_t flagsHash = 1064582566;
     static constexpr int flagsHashOffset = 12;
+    // * Debug to show current flags hash, useful to overwrite the old flags hash if
+    // * the flags in client js changed
+    // Log::Info << "Flags hash: " << *(uint32_t*)(cache->data + flagsHashOffset) << Log::Endl;
     CopyValueToBuffer(cache->data, flagsHashOffset, flagsHash);
 
     static const char magic[] = { 'A', 'L', 'T', 'B', 'C' };
