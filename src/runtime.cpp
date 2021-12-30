@@ -130,7 +130,7 @@ void CompileFilesToBytecode(
     delete cache;
     delete buf;
 
-    Log::Colored << "~g~[V8 Bytecode] ~w~Converted file to bytecode: ~lg~" << fileName << Log::Endl;
+    if(alt::ICore::Instance().IsDebug()) Log::Colored << "~g~[V8 Bytecode] ~w~Converted file to bytecode: ~lg~" << fileName << Log::Endl;
     compiledFiles.push_back(fileName);
 
     // Convert file dependencies too
