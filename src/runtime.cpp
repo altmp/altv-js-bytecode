@@ -35,7 +35,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
 
     // Read the extra files
     std::vector<std::string> extraFilePatterns = resource->GetConfigStringList("extra-compile-files");
-    std::unordered_set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
+    std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
     for(const std::string& file : files)
     {
         alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource, file, "");
@@ -53,7 +53,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     }
 
     // Write all other files normally
-    const std::unordered_set<std::string>& clientFiles = resource->GetClientFiles();
+    const std::set<std::string>& clientFiles = resource->GetClientFiles();
     for(const std::string& clientFile : clientFiles)
     {
         if(std::find(compiledFiles.begin(), compiledFiles.end(), clientFile) != compiledFiles.end()) continue;
