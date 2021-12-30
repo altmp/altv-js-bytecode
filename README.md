@@ -8,7 +8,7 @@ because the bytecode module needs to use an additional flag that Client JS doesn
 the flags hash in the bytecode with the hash used in Client JS.
 
 To update the flags hash because the V8 flags used in Client JS have changed, update the V8 flags used by the module temporarily to
-exactly those used by Client JS, then use the debug log in `CompileFilesToBytecode` to display the current flags hash.
+exactly those used by Client JS, then use the debug log in `compiler.cpp` to display the current flags hash.
 Start the server once and take the flags hash from the debug log and overwrite the old flags hash variable with the new hash value.
 Now make sure to change the flags again so they are *exactly* those in Client JS (+ `--flush-bytecode`).
 
