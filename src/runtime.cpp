@@ -53,7 +53,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     }
 
     // Write all other files normally
-    const std::set<std::string>& clientFiles = resource->GetClientFiles();
+    const std::vector<std::string>& clientFiles = resource->GetClientFiles();
     for(const std::string& clientFile : clientFiles)
     {
         if(std::find(compiledFiles.begin(), compiledFiles.end(), clientFile) != compiledFiles.end()) continue;
