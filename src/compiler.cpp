@@ -124,14 +124,15 @@ void Compiler::CompileModuleToBytecode(
         alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource, depPath, fileName);
         if(!pathInfo.pkg) continue;
 
-        alt::IPackage::File* file = pathInfo.pkg->OpenFile(pathInfo.fileName);
+        std::string fullFileName = GetFileName(resource, (pathInfo.prefix + pathInfo.fileName).ToString(), "");
+        alt::IPackage::File* file = pathInfo.pkg->OpenFile(fullFileName);
         size_t fileSize = pathInfo.pkg->GetFileSize(file);
         std::string buffer;
         buffer.resize(fileSize);
         pathInfo.pkg->ReadFile(file, buffer.data(), buffer.size());
         pathInfo.pkg->CloseFile(file);
 
-        CompileModuleToBytecode(isolate, resource, package, GetFileName(resource, (pathInfo.prefix + pathInfo.fileName).ToString(), ""), buffer, compiledFiles);
+        CompileModuleToBytecode(isolate, resource, package, fullFileName, buffer, compiledFiles);
     }
 }
 
