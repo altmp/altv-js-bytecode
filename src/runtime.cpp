@@ -49,7 +49,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
         pathInfo.pkg->ReadFile(pkgFile, buffer.data(), buffer.size());
         pathInfo.pkg->CloseFile(pkgFile);
 
-        Compiler::CompileModuleToBytecode(isolate, resource, resourcePackage, file, buffer, compiledFiles);
+        Compiler::CompileModuleToBytecode(isolate, resource, package, file, buffer, compiledFiles);
     }
 
     // Write all other files normally
