@@ -1,6 +1,8 @@
 #include "runtime.h"
 #include "Log.h"
 #include "compiler.h"
+#include "package.h"
+#include "logger.h"
 
 JSBytecodeRuntime::JSBytecodeRuntime()
 {
@@ -19,41 +21,25 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
-    // Keep track of all the files we compiled to bytecode
-    std::vector<std::string> compiledFiles;
+    alt::IPackage* resourcePackage = resource->GetPackage();
 
     // Read client main file
-    alt::IPackage* resourcePackage = resource->GetPackage();
-    std::string fileName = resource->GetClientMain();
-    alt::IPackage::File* file = resourcePackage->OpenFile(fileName);
-    size_t fileSize = resourcePackage->GetFileSize(file);
-    std::string buffer;
-    buffer.resize(fileSize);
-    resourcePackage->ReadFile(file, buffer.data(), buffer.size());
-    resourcePackage->CloseFile(file);
-    Compiler::CompileModuleToBytecode(isolate, resource, package, fileName, buffer, compiledFiles);
+    std::unique_ptr<Package> compilerPackage = std::make_unique<Package>(package, resourcePackage, resource);
+    std::unique_ptr<Logger> compilerLogger = std::make_unique<Logger>();
+    BytecodeCompiler::Compiler compiler(isolate, compilerPackage.get(), compilerLogger.get());
+    compiler.CompileModule(resource->GetClientMain());
 
     // Read the extra files
     std::vector<std::string> extraFilePatterns = resource->GetConfigStringList("extra-compile-files");
     std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
     for(const std::string& file : files)
     {
-        alt::IPackage::PathInfo pathInfo = alt::ICore::Instance().Resolve(resource, file, "");
-        if(!pathInfo.pkg) continue;
-        alt::IPackage::File* pkgFile = pathInfo.pkg->OpenFile(file);
-        if(!pkgFile) continue;
-
-        size_t fileSize = pathInfo.pkg->GetFileSize(pkgFile);
-        std::string buffer;
-        buffer.resize(fileSize);
-        pathInfo.pkg->ReadFile(pkgFile, buffer.data(), buffer.size());
-        pathInfo.pkg->CloseFile(pkgFile);
-
-        Compiler::CompileModuleToBytecode(isolate, resource, package, file, buffer, compiledFiles);
+        compiler.CompileModule(file, true);
     }
 
     // Write all other files normally
     const std::vector<std::string>& clientFiles = resource->GetClientFiles();
+    const std::vector<std::string>& compiledFiles = compiler.GetCompiledFiles();
     for(const std::string& clientFile : clientFiles)
     {
         if(std::find(compiledFiles.begin(), compiledFiles.end(), clientFile) != compiledFiles.end()) continue;

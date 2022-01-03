@@ -4,7 +4,8 @@
             "name": "Win32 Static",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/deps/v8/include"
+                "${workspaceFolder}/module/deps",
+                "${workspaceFolder}/module/deps/v8/include"
             ],
             "defines": [
                 "_DEBUG",
