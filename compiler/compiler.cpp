@@ -63,6 +63,7 @@ static std::pair<uint8_t*, size_t> CreateBytecodeBuffer(const uint8_t* buffer, i
 
 void Compiler::CompileModule(const std::string& fileName, bool compileDependencies)
 {
+    // Read the file
     if(!package->FileExists(fileName))
     {
         logger->LogError("File not found: " + logger->GetHighlightColor() + fileName);
@@ -77,6 +78,7 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
         return;
     }
 
+    // Compile the file to a JavaScript module
     v8::ScriptOrigin origin(
       isolate, v8::String::NewFromUtf8(isolate, fileName.c_str()).ToLocalChecked(), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
     v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode.c_str()).ToLocalChecked(), origin);
@@ -86,22 +88,23 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
         logger->LogError("Failed to compile module: " + logger->GetHighlightColor() + fileName);
         return;
     }
+
+    // Retrieve the bytecode from the module
     v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
     v8::ScriptCompiler::CachedData* cache = v8::ScriptCompiler::CreateCodeCache(module->GetUnboundModuleScript());
     if(cache == nullptr)
     {
-        alt::ICore::Instance().LogError("Failed to create code cache: " + logger->GetHighlightColor() + fileName);
+        alt::ICore::Instance().LogError("Failed to create bytecode: " + logger->GetHighlightColor() + fileName);
         return;
     }
-    // * Debug to show current flags hash, useful to overwrite the old flags hash if
-    // * the flags in client js changed
-    // Log::Info << "Flags hash: " << *(uint32_t*)(cache->data + flagsHashOffset) << Log::Endl;
 
+    // Write the bytecode to file
     std::pair<uint8_t*, size_t> bytecodeResult = CreateBytecodeBuffer(cache->data, cache->length);
     uint8_t* buf = bytecodeResult.first;
     size_t bufSize = bytecodeResult.second;
-
     package->WriteFile(fileName, (void*)buf, bufSize);
+
+    // Clean up
     delete buf;
     // Make sure the byte buffer is deleted with the cached data from V8
     cache->buffer_policy = v8::ScriptCompiler::CachedData::BufferPolicy::BufferOwned;
@@ -110,7 +113,7 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     logger->Log("Converted file to bytecode: " + logger->GetHighlightColor() + fileName);
     compiledFiles.push_back(fileName);
 
-    // Convert file dependencies too
+    // Compile all dependencies
     if(compileDependencies)
     {
         v8::Local<v8::Context> ctx = v8::Context::New(isolate);
@@ -120,22 +123,17 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
         {
             v8::Local<v8::Data> dep = dependencies->Get(ctx, i);
             v8::Local<v8::ModuleRequest> request = dep.As<v8::ModuleRequest>();
+            // Ignore all imports with import assertions, as those are not loaded as
+            // normal JS files
             if(request->GetImportAssertions()->Length() > 0) continue;
 
             v8::Local<v8::String> depStr = request->GetSpecifier();
             std::string depPath = *v8::String::Utf8Value(isolate, depStr);
+            // Ignore the built-in modules
             if(depPath == "alt" || depPath == "alt-client" || depPath == "natives") continue;
 
+            // Compile the dependency file
             std::string fullFileName = package->ResolveFile(depPath, fileName);
-            size_t fileSize = package->GetFileSize(fullFileName);
-            std::string buffer;
-            buffer.resize(fileSize);
-            if(!package->ReadFile(fullFileName, buffer.data(), buffer.size()))
-            {
-                logger->LogError("Failed to read dependency file: " + logger->GetHighlightColor() + fullFileName);
-                continue;
-            }
-
             CompileModule(fullFileName, true);
         }
     }

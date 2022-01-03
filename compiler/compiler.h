@@ -15,6 +15,8 @@ namespace BytecodeCompiler
         virtual bool FileExists(const std::string& file) = 0;
         virtual size_t GetFileSize(const std::string& file) = 0;
 
+        // Resolves a JS file path from the given file and base path
+        // For example, this should append the `.js` extension if it doesn't exist
         virtual std::string ResolveFile(const std::string& file, const std::string& basePath) = 0;
     };
 
