@@ -34,7 +34,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
     for(const std::string& file : files)
     {
-        compiler.CompileModule(file, true);
+        compiler.CompileModule(file, false);
     }
 
     // Write all other files normally
