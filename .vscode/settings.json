@@ -70,7 +70,8 @@
         "thread": "cpp",
         "xlocbuf": "cpp",
         "xlocmes": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "set": "cpp"
     },
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true

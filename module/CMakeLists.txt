@@ -15,6 +15,7 @@ message("alt:V JS - Fetching v8 deps, can take a while")
 DownloadDeps(${DEPS_FOLDER})
 
 file(GLOB_RECURSE PROJECT_SOURCE_FILES "src/*.h" "src/*.cpp")
+file(GLOB_RECURSE COMPILER_SOURCE_FILES "../compiler/*.h" "../compiler/*.cpp")
 
 macro(GroupSources curdir groupindex)
   file(GLOB children RELATIVE ${curdir} ${curdir}/*)
@@ -32,15 +33,18 @@ macro(GroupSources curdir groupindex)
 endmacro()
 
 GroupSources(${PROJECT_SOURCE_DIR}/src "Source Files")
+GroupSources(${PROJECT_SOURCE_DIR}/../compiler "Compiler Files")
 
 include_directories(
   "deps"
   "deps/v8/include"
+  "../compiler"
 )
 
 add_library(
   ${PROJECT_NAME} SHARED
   ${PROJECT_SOURCE_FILES}
+  ${COMPILER_SOURCE_FILES}
 )
 
 if(WIN32)
