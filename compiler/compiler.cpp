@@ -61,6 +61,13 @@ static std::pair<uint8_t*, size_t> CreateBytecodeBuffer(const uint8_t* buffer, i
     return std::make_pair(buf, bufSize);
 }
 
+static void PrintFlagsHash(BytecodeCompiler::ILogger* logger, const uint8_t* buffer)
+{
+    uint32_t flagsHash = 0;
+    memcpy(&flagsHash, buffer + flagsHashOffset, sizeof(flagsHash));
+    logger->Log("Flags hash: " + std::to_string(flagsHash));
+}
+
 void Compiler::CompileModule(const std::string& fileName, bool compileDependencies)
 {
     // Read the file
