@@ -134,6 +134,8 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
 
             // Compile the dependency file
             std::string fullFileName = package->ResolveFile(depPath, fileName);
+            // Check if the file has already been compiled
+            if(std::find(compiledFiles.begin(), compiledFiles.end(), fullFileName) != compiledFiles.end()) continue;
             CompileModule(fullFileName, true);
         }
     }
