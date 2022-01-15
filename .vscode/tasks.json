@@ -12,6 +12,13 @@
         "group": {
           "kind": "build",
           "isDefault": true
+        },
+        "presentation": {
+            "reveal": "silent",
+            "focus": false,
+            "panel": "shared",
+            "showReuseMessage": false,
+            "clear": true
         }
       }
     ]
