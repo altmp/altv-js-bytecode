@@ -22,4 +22,4 @@ endif()
 
 add_subdirectory("compiler")
 add_subdirectory("module")
-#add_subdirectory("program")
+add_subdirectory("executable")
