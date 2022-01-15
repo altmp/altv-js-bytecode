@@ -4,9 +4,9 @@
       {
         "label": "Build",
         "type": "shell",
-        "command": "cd module && ./tools/build.sh",
+        "command": "./build.sh",
         "windows": {
-          "command": "cd module && .\\tools\\build.bat"
+          "command": "build.bat"
         },
         "problemMatcher": ["$msCompile"],
         "group": {
@@ -16,4 +16,3 @@
       }
     ]
   }
-  

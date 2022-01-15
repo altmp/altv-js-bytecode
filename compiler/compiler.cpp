@@ -1,5 +1,4 @@
 #include "compiler.h"
-#include "Log.h"
 
 using namespace BytecodeCompiler;
 
@@ -101,7 +100,7 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     v8::ScriptCompiler::CachedData* cache = v8::ScriptCompiler::CreateCodeCache(module->GetUnboundModuleScript());
     if(cache == nullptr)
     {
-        alt::ICore::Instance().LogError("Failed to create bytecode: " + logger->GetHighlightColor() + fileName);
+        logger->LogError("Failed to create bytecode: " + logger->GetHighlightColor() + fileName);
         return;
     }
 
