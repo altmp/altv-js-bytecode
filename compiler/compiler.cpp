@@ -148,3 +148,10 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
 
     return true;
 }
+
+bool BytecodeCompiler::IsBytecodeFile(void* buffer, size_t size)
+{
+    if(size < sizeof(magicBytes)) return false;
+    if(memcmp(buffer, magicBytes, sizeof(magicBytes)) != 0) return false;
+    return true;
+}

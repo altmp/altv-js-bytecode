@@ -50,4 +50,6 @@ namespace BytecodeCompiler
 
         bool CompileModule(const std::string& fileName, bool compileDependencies = true);
     };
+
+    bool IsBytecodeFile(void* buffer, size_t size);
 }  // namespace BytecodeCompiler
