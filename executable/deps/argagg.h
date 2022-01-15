@@ -811,7 +811,7 @@ namespace argagg
     {
         return this->options.at(name);
     }
-    catch(const std::out_of_range& e)
+    catch(const std::out_of_range&)
     {
         std::ostringstream msg;
         msg << "no option named \"" << name << "\" in parser_results";
@@ -823,7 +823,7 @@ namespace argagg
     {
         return this->options.at(name);
     }
-    catch(const std::out_of_range& e)
+    catch(const std::out_of_range&)
     {
         std::ostringstream msg;
         msg << "no option named \"" << name << "\" in parser_results";
