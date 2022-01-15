@@ -23,9 +23,9 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
 
     // Set up compiler
     alt::IPackage* resourcePackage = resource->GetPackage();
-    std::unique_ptr<Package> compilerPackage = std::make_unique<Package>(package, resourcePackage, resource);
-    std::unique_ptr<Logger> compilerLogger = std::make_unique<Logger>();
-    BytecodeCompiler::Compiler compiler(isolate, compilerPackage.get(), compilerLogger.get());
+    Package compilerPackage(package, resourcePackage, resource);
+    Logger compilerLogger;
+    BytecodeCompiler::Compiler compiler(isolate, &compilerPackage, &compilerLogger);
 
     // Compile client main file
     bool result = compiler.CompileModule(resource->GetClientMain());
