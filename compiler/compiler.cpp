@@ -2,17 +2,17 @@
 
 using namespace BytecodeCompiler;
 
-constexpr const char magicBytes[] = { 'A', 'L', 'T', 'B', 'C' };
+static constexpr const char magicBytes[] = { 'A', 'L', 'T', 'B', 'C' };
 
 // Hash for empty module ("")
-constexpr uint32_t srcHash = 2147483648;
-constexpr int srcHashOffset = 8;
+static constexpr uint32_t srcHash = 2147483648;
+static constexpr int srcHashOffset = 8;
 
-constexpr uint32_t flagsHash = 1064582566;
-constexpr int flagsHashOffset = 12;
+static constexpr uint32_t flagsHash = 1064582566;
+static constexpr int flagsHashOffset = 12;
 
 // Copies a uint32 value to the buffer, considering the endianness of the system
-inline void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val)
+inline static void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val)
 {
     bool isLittleEndian = true;
     {
@@ -67,13 +67,13 @@ static void PrintFlagsHash(BytecodeCompiler::ILogger* logger, const uint8_t* buf
     logger->Log("Flags hash: " + std::to_string(flagsHash));
 }
 
-void Compiler::CompileModule(const std::string& fileName, bool compileDependencies)
+bool Compiler::CompileModule(const std::string& fileName, bool compileDependencies)
 {
     // Read the file
     if(!package->FileExists(fileName))
     {
         logger->LogError("File not found: " + logger->GetHighlightColor() + fileName);
-        return;
+        return false;
     }
     size_t size = package->GetFileSize(fileName);
     std::string sourceCode;
@@ -81,7 +81,7 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     if(!package->ReadFile(fileName, sourceCode.data(), sourceCode.size()))
     {
         logger->LogError("Failed to read file: " + logger->GetHighlightColor() + fileName);
-        return;
+        return false;
     }
 
     // Compile the file to a JavaScript module
@@ -92,7 +92,7 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     if(maybeModule.IsEmpty())
     {
         logger->LogError("Failed to compile module: " + logger->GetHighlightColor() + fileName);
-        return;
+        return false;
     }
 
     // Retrieve the bytecode from the module
@@ -101,7 +101,7 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     if(cache == nullptr)
     {
         logger->LogError("Failed to create bytecode: " + logger->GetHighlightColor() + fileName);
-        return;
+        return false;
     }
 
     // Write the bytecode to file
@@ -142,7 +142,9 @@ void Compiler::CompileModule(const std::string& fileName, bool compileDependenci
             std::string fullFileName = package->ResolveFile(depPath, fileName);
             // Check if the file has already been compiled
             if(std::find(compiledFiles.begin(), compiledFiles.end(), fullFileName) != compiledFiles.end()) continue;
-            CompileModule(fullFileName, true);
+            return CompileModule(fullFileName, true);
         }
     }
+
+    return true;
 }

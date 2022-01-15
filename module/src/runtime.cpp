@@ -28,12 +28,17 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     BytecodeCompiler::Compiler compiler(isolate, compilerPackage.get(), compilerLogger.get());
 
     // Compile client main file
-    compiler.CompileModule(resource->GetClientMain());
+    bool result = compiler.CompileModule(resource->GetClientMain());
+    if(!result) return;
 
     // Compile the extra files
     std::vector<std::string> extraFilePatterns = resource->GetConfigStringList("extra-compile-files");
     std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
-    for(const std::string& file : files) compiler.CompileModule(file, false);
+    for(const std::string& file : files)
+    {
+        bool result = compiler.CompileModule(file, false);
+        if(!result) return;
+    }
 
     // Write all other files normally
     const std::vector<std::string>& clientFiles = resource->GetClientFiles();

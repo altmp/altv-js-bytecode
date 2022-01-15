@@ -48,6 +48,6 @@ namespace BytecodeCompiler
             return compiledFiles;
         }
 
-        void CompileModule(const std::string& fileName, bool compileDependencies = true);
+        bool CompileModule(const std::string& fileName, bool compileDependencies = true);
     };
 }  // namespace BytecodeCompiler
