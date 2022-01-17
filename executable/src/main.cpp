@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         Logger::Instance().LogError("Invalid input directory specified");
         return 1;
     }
-    std::string outputDir = parser.HasArgument("output") ? parser.GetArgument("output") : "";
+    fs::path outputDir = parser.HasArgument("output") ? parser.GetArgument("output") : "";
     if(outputDir.empty() || !fs::exists(outputDir) || !fs::is_directory(outputDir))
     {
         Logger::Instance().LogError("Invalid output directory specified");
