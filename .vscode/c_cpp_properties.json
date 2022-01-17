@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/module/deps",
-                "${workspaceFolder}/module/deps/v8/include"
+                "${workspaceFolder}/deps/v8/include"
             ],
             "defines": [
                 "_DEBUG",
