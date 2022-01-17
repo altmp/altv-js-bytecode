@@ -1,5 +1,10 @@
 #include "cli.h"
 #include "logger.h"
+#include "alt-config/alt-config.h"
+
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 int main(int argc, char* argv[])
 {
@@ -19,16 +24,16 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    std::string resourceDir = parser.HasArgument("input") ? parser.GetArgument("input") : "";
-    if(resourceDir.empty())
+    fs::path resourceDir = parser.HasArgument("input") ? parser.GetArgument("input") : "";
+    if(resourceDir.empty() || !fs::exists(resourceDir) || !fs::is_directory(resourceDir))
     {
-        Logger::Instance().LogError("No input directory specified");
+        Logger::Instance().LogError("Invalid input directory specified");
         return 1;
     }
     std::string outputDir = parser.HasArgument("output") ? parser.GetArgument("output") : "";
-    if(outputDir.empty())
+    if(outputDir.empty() || !fs::exists(outputDir) || !fs::is_directory(outputDir))
     {
-        Logger::Instance().LogError("No output directory specified");
+        Logger::Instance().LogError("Invalid output directory specified");
         return 1;
     }
 
