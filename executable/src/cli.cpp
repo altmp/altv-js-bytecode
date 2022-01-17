@@ -1,26 +1,23 @@
 #include "cli.h"
 #include "logger.h"
 
+#include <vector>
+
 using namespace CLI;
 
 Parser::Parser(int argc, char* argv[])
 {
-    SetupArguments(parser);
-    try
+    // Parse args
+    for(size_t i = 0; i < argc; i++)
     {
-        results = parser.parse(argc, argv);
+        std::string arg = argv[i];
+        if(arg.find("--") == 0)
+        {
+            std::string name = arg.substr(2);
+            if(i + 1 < argc) args[name] = argv[i + 1];
+            else
+                args[name] = "";
+            i++;
+        }
     }
-    catch(const std::exception& e)
-    {
-        Logger::Instance().LogError(e.what());
-        failed = true;
-    }
-}
-
-// *** CLI Args
-void Parser::SetupArguments(argagg::parser& parser)
-{
-    auto& args = parser.definitions;
-
-    args.push_back({ "help", { "-h", "--help" }, "Shows this help message", 0 });
 }

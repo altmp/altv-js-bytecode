@@ -1,41 +1,29 @@
 #pragma once
 
-#include "argagg.h"
 #include <vector>
+#include <string>
+#include <unordered_map>
 
 namespace CLI
 {
     class Parser
     {
-        argagg::parser parser;
-        argagg::parser_results results;
-        bool failed = false;
-
-        void SetupArguments(argagg::parser& parser);
+        std::unordered_map<std::string, std::string> args;
 
     public:
         Parser(int argc, char* argv[]);
 
-        bool DidFail() const
-        {
-            return failed;
-        }
         bool IsEmpty() const
         {
-            for(auto& arg : results.options)
-            {
-                if(arg.second.count() != 0) return false;
-            }
-            return results.count() == 0;
+            return args.size() == 0;
         }
         bool HasArgument(const std::string& name) const
         {
-            return results[name];
+            return args.count(name) != 0;
         }
-
-        operator std::string() const
+        std::string GetArgument(const std::string& name) const
         {
-            return parser.to_string();
+            return args.at(name);
         }
     };
 }  // namespace CLI
