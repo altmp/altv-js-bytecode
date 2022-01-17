@@ -1,3 +1,6 @@
 [submodule "module/deps/cpp-sdk"]
 	path = module/deps/cpp-sdk
 	url = https://github.com/altmp/cpp-sdk.git
+[submodule "executable/deps/alt-config"]
+	path = executable/deps/alt-config
+	url = git@github.com:altmp/alt-config.git
