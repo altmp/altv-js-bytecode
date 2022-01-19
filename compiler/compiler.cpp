@@ -1,5 +1,7 @@
 #include "compiler.h"
 
+#include <algorithm>
+
 using namespace BytecodeCompiler;
 
 static constexpr const char magicBytes[] = { 'A', 'L', 'T', 'B', 'C' };

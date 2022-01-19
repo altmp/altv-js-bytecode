@@ -38,6 +38,13 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
   ${ALTV_JS_DEFS}
 )
 
+if(UNIX)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -std=c++17
+        -stdlib=libstdc++
+    )
+endif()
+
 if(WIN32)
   set(ALTV_JS_LINKS
     # Platform binaries
@@ -51,7 +58,7 @@ if(WIN32)
 elseif(UNIX)
   set(ALTV_JS_LINKS
     # V8
-    ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.so
+    ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
   )
 endif()
 
