@@ -144,7 +144,7 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
             std::string fullFileName = package->ResolveFile(depPath, fileName);
             // Check if the file has already been compiled
             if(std::find(compiledFiles.begin(), compiledFiles.end(), fullFileName) != compiledFiles.end()) continue;
-            return CompileModule(fullFileName, true);
+            if(!CompileModule(fullFileName, true)) return false;
         }
     }
 
