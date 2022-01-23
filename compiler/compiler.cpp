@@ -138,7 +138,7 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
             v8::Local<v8::String> depStr = request->GetSpecifier();
             std::string depPath = *v8::String::Utf8Value(isolate, depStr);
             // Ignore the built-in modules
-            if(depPath == "alt" || depPath == "alt-client" || depPath == "natives") continue;
+            if(std::find(ignoredModules.begin(), ignoredModules.end(), depPath) != ignoredModules.end()) continue;
 
             // Compile the dependency file
             std::string fullFileName = package->ResolveFile(depPath, fileName);

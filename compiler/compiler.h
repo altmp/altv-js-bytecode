@@ -38,6 +38,7 @@ namespace BytecodeCompiler
         IPackage* package;
         ILogger* logger;
         std::vector<std::string> compiledFiles;
+        std::vector<std::string> ignoredModules;
 
     public:
         Compiler() = delete;
@@ -46,6 +47,10 @@ namespace BytecodeCompiler
         const std::vector<std::string>& GetCompiledFiles() const
         {
             return compiledFiles;
+        }
+        void SetIgnoredModules(const std::vector<std::string>& modules)
+        {
+            ignoredModules = modules;
         }
 
         bool CompileModule(const std::string& fileName, bool compileDependencies = true);

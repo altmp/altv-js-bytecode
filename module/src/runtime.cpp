@@ -27,6 +27,9 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     Logger compilerLogger;
     BytecodeCompiler::Compiler compiler(isolate, &compilerPackage, &compilerLogger);
 
+    static std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker" };
+    compiler.SetIgnoredModules(ignoredModules);
+
     // Compile client main file
     bool result = compiler.CompileModule(resource->GetClientMain());
     if(!result) return;
