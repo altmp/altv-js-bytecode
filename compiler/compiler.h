@@ -40,6 +40,8 @@ namespace BytecodeCompiler
         std::vector<std::string> compiledFiles;
         std::vector<std::string> ignoredModules;
 
+        std::vector<char> magicBytes = { 'A', 'L', 'T', 'B', 'C' };
+
     public:
         Compiler() = delete;
         Compiler(v8::Isolate* _isolate, IPackage* _package, ILogger* _logger) : isolate(_isolate), package(_package), logger(_logger) {}
@@ -52,9 +54,26 @@ namespace BytecodeCompiler
         {
             ignoredModules = modules;
         }
+        const std::vector<std::string>& GetIgnoredModules() const
+        {
+            return ignoredModules;
+        }
+        void SetMagicBytes(const std::vector<char>& bytes)
+        {
+            magicBytes = bytes;
+        }
+        const std::vector<char>& GetMagicBytes() const
+        {
+            return magicBytes;
+        }
 
         bool CompileModule(const std::string& fileName, bool compileDependencies = true);
-    };
 
-    bool IsBytecodeFile(void* buffer, size_t size);
+        bool IsBytecodeFile(void* buffer, size_t size);
+
+    private:
+        std::pair<uint8_t*, size_t> CreateBytecodeBuffer(const uint8_t* buffer, int length);
+
+        static void FixBytecode(const uint8_t* buffer);
+    };
 }  // namespace BytecodeCompiler

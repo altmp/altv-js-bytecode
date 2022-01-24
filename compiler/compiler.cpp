@@ -1,73 +1,9 @@
 #include "compiler.h"
+#include "helpers.h"
 
 #include <algorithm>
 
 using namespace BytecodeCompiler;
-
-static constexpr const char magicBytes[] = { 'A', 'L', 'T', 'B', 'C' };
-
-// Hash for empty module ("")
-static constexpr uint32_t srcHash = 2147483648;
-static constexpr int srcHashOffset = 8;
-
-static constexpr uint32_t flagsHash = 1064582566;
-static constexpr int flagsHashOffset = 12;
-
-// Copies a uint32 value to the buffer, considering the endianness of the system
-inline static void CopyValueToBuffer(const uint8_t* buffer, size_t offset, uint32_t val)
-{
-    bool isLittleEndian = true;
-    {
-        int n = 1;
-        isLittleEndian = *(char*)&n == 1;
-    }
-
-    uintptr_t dst = (uintptr_t)buffer + offset;
-    if(isLittleEndian) memcpy((void*)(dst), &val, sizeof(val));
-    else
-    {
-        // Code inspired by V8
-        uint8_t* src = reinterpret_cast<uint8_t*>(&val);
-        uint8_t* dstPtr = reinterpret_cast<uint8_t*>(dst);
-        for(size_t i = 0; i < sizeof(val); i++)
-        {
-            dstPtr[i] = src[sizeof(val) - i - 1];
-        }
-    }
-}
-
-static void FixBytecode(const uint8_t* buffer)
-{
-    // Copy hash of empty source file into bytecode source hash section
-    // Needed because V8 compares the bytecode code hash to provided source hash
-    CopyValueToBuffer(buffer, srcHashOffset, srcHash);
-
-    // Overwrite flags hash with the hash used in client js
-    // !!! Make sure to update the hash if flags in client js change !!!
-    CopyValueToBuffer(buffer, flagsHashOffset, flagsHash);
-}
-
-static std::pair<uint8_t*, size_t> CreateBytecodeBuffer(const uint8_t* buffer, int length)
-{
-    // Make necessary changes to the bytecode
-    FixBytecode(buffer);
-
-    // Create our own custom bytecode buffer by appending our magic bytes
-    // at the front, and then the bytecode itself at the end
-    size_t bufSize = sizeof(magicBytes) + length;
-    uint8_t* buf = new uint8_t[bufSize];
-    memcpy(buf, magicBytes, sizeof(magicBytes));
-    memcpy(buf + sizeof(magicBytes), buffer, length);
-
-    return std::make_pair(buf, bufSize);
-}
-
-static void PrintFlagsHash(BytecodeCompiler::ILogger* logger, const uint8_t* buffer)
-{
-    uint32_t flagsHash = 0;
-    memcpy(&flagsHash, buffer + flagsHashOffset, sizeof(flagsHash));
-    logger->Log("Flags hash: " + std::to_string(flagsHash));
-}
 
 bool Compiler::CompileModule(const std::string& fileName, bool compileDependencies)
 {
@@ -151,9 +87,42 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     return true;
 }
 
-bool BytecodeCompiler::IsBytecodeFile(void* buffer, size_t size)
+bool Compiler::IsBytecodeFile(void* buffer, size_t size)
 {
-    if(size < sizeof(magicBytes)) return false;
-    if(memcmp(buffer, magicBytes, sizeof(magicBytes)) != 0) return false;
+    if(size < magicBytes.size()) return false;
+    if(memcmp(buffer, magicBytes.data(), magicBytes.size()) != 0) return false;
     return true;
+}
+
+std::pair<uint8_t*, size_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int length)
+{
+    // Make necessary changes to the bytecode
+    FixBytecode(buffer);
+
+    // Create our own custom bytecode buffer by appending our magic bytes
+    // at the front, and then the bytecode itself at the end
+    size_t bufSize = magicBytes.size() + length;
+    uint8_t* buf = new uint8_t[bufSize];
+    memcpy(buf, magicBytes.data(), magicBytes.size());
+    memcpy(buf + magicBytes.size(), buffer, length);
+
+    return std::make_pair(buf, bufSize);
+}
+
+// Hash for empty module ("")
+static constexpr uint32_t srcHash = 2147483648;
+static constexpr int srcHashOffset = 8;
+
+static constexpr uint32_t flagsHash = 1064582566;
+static constexpr int flagsHashOffset = 12;
+
+void Compiler::FixBytecode(const uint8_t* buffer)
+{
+    // Copy hash of empty source file into bytecode source hash section
+    // Needed because V8 compares the bytecode code hash to provided source hash
+    Helpers::CopyValueToBuffer(buffer, srcHashOffset, srcHash);
+
+    // Overwrite flags hash with the hash used in client js
+    // !!! Make sure to update the hash if flags in client js change !!!
+    Helpers::CopyValueToBuffer(buffer, flagsHashOffset, flagsHash);
 }

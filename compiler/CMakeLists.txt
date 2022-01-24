@@ -8,7 +8,7 @@ include_directories(
 include(GroupSources)
 GroupSources(${PROJECT_SOURCE_DIR} "Source Files")
 
-add_library(${PROJECT_NAME} STATIC "compiler.cpp" "compiler.h")
+add_library(${PROJECT_NAME} STATIC "compiler.cpp")
 
 if(UNIX)
     target_compile_options(${PROJECT_NAME} PRIVATE
