@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace Helpers
 {
     // Copies a uint32 value to the buffer, considering the endianness of the system
