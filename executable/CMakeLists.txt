@@ -19,6 +19,17 @@ add_executable(${PROJECT_NAME}
 include(Shared)
 SetupProject("executable")
 
+if(WIN32)
+    set(LINK_LIBS
+        ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
+    )
+elseif(UNIX)
+    set(LINK_LIBS
+        ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
+    )
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  compiler
+    compiler
+    ${LINK_LIBS}
 )
