@@ -21,6 +21,9 @@ SetupProject("executable")
 
 if(WIN32)
     set(LINK_LIBS
+        Winmm.lib
+        DbgHelp.lib
+        shlwapi.lib
         ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
     )
 elseif(UNIX)
