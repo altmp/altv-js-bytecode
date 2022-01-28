@@ -44,7 +44,12 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
 
     // Write the bytecode to file
     std::vector<uint8_t> bytecodeResult = CreateBytecodeBuffer(cache->data, cache->length);
-    package->WriteFile(fileName, (void*)bytecodeResult.data(), bytecodeResult.size());
+    bool writeResult = package->WriteFile(fileName, (void*)bytecodeResult.data(), bytecodeResult.size());
+    if(!writeResult)
+    {
+        logger->LogError("Failed to write to file: " + logger->GetHighlightColor() + fileName);
+        return false;
+    }
 
     // Make sure the byte buffer is deleted with the cached data from V8
     cache->buffer_policy = v8::ScriptCompiler::CachedData::BufferPolicy::BufferOwned;
