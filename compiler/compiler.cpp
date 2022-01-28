@@ -43,13 +43,9 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     }
 
     // Write the bytecode to file
-    std::pair<uint8_t*, size_t> bytecodeResult = CreateBytecodeBuffer(cache->data, cache->length);
-    uint8_t* buf = bytecodeResult.first;
-    size_t bufSize = bytecodeResult.second;
-    package->WriteFile(fileName, (void*)buf, bufSize);
+    std::vector<uint8_t> bytecodeResult = CreateBytecodeBuffer(cache->data, cache->length);
+    package->WriteFile(fileName, (void*)bytecodeResult.data(), bytecodeResult.size());
 
-    // Clean up
-    delete buf;
     // Make sure the byte buffer is deleted with the cached data from V8
     cache->buffer_policy = v8::ScriptCompiler::CachedData::BufferPolicy::BufferOwned;
     delete cache;
@@ -94,19 +90,21 @@ bool Compiler::IsBytecodeFile(void* buffer, size_t size)
     return true;
 }
 
-std::pair<uint8_t*, size_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int length)
+std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int length)
 {
     // Make necessary changes to the bytecode
     FixBytecode(buffer);
 
     // Create our own custom bytecode buffer by appending our magic bytes
     // at the front, and then the bytecode itself at the end
+    std::vector<uint8_t> buf;
     size_t bufSize = magicBytes.size() + length;
-    uint8_t* buf = new uint8_t[bufSize];
-    memcpy(buf, magicBytes.data(), magicBytes.size());
-    memcpy(buf + magicBytes.size(), buffer, length);
+    buf.resize(bufSize);
 
-    return std::make_pair(buf, bufSize);
+    memcpy(buf.data(), magicBytes.data(), magicBytes.size());
+    memcpy(buf.data() + magicBytes.size(), buffer, length);
+
+    return std::move(buf);
 }
 
 // Hash for empty module ("")
