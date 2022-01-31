@@ -27,6 +27,10 @@ if(WIN32)
         ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
     )
 elseif(UNIX)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -std=c++17
+        -stdlib=libstdc++
+    )
     set(LINK_LIBS
         ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
     )
