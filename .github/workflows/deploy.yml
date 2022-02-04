@@ -1,0 +1,124 @@
+name: Build & deploy
+on:
+  push:
+    branches-ignore:
+      - '**'
+    tags:
+      - 'dev/*.*-dev*'
+      - 'rc/*.*-rc*'
+      - 'release/*.*'
+
+jobs:
+  build-windows:
+    name: Build windows
+    runs-on: windows-2019
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        shell: cmd
+        run: build.bat
+
+      - name: Upload module dll
+        uses: actions/upload-artifact@v2
+        with:
+          name: bytecode-module-windows-dll
+          path: ./BUILD/bin/module/js-bytecode-module.dll
+
+      - name: Upload module pdb
+        uses: actions/upload-artifact@v2
+        with:
+          name: bytecode-module-windows-pdb
+          path: ./BUILD/bin/module/js-bytecode-module.pdb
+
+
+  build-linux:
+    name: Build linux
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: build.sh
+
+      - name: Upload module so
+        uses: actions/upload-artifact@v2
+        with:
+          name: bytecode-module-linux-so
+          path: ./BUILD/module/libjs-bytecode-module.so
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-18.04
+    needs: [build-linux, build-windows]
+    steps:
+      - name: Download windows module dll
+        uses: actions/download-artifact@v2
+        with:
+          name: bytecode-module-windows-dll
+          path: dist
+
+      - name: Download windows module pdb
+        uses: actions/download-artifact@v2
+        with:
+          name: bytecode-module-windows-pdb
+          path: dist
+
+      - name: Download linux module so
+        uses: actions/download-artifact@v2
+        with:
+          name: bytecode-module-linux-so
+          path: dist
+
+      - name: Extract version
+        id: version
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=BRANCH::${TAG/\/*}
+          echo ::set-output name=VERSION::${TAG/*\/}
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.version.outputs.VERSION }}
+
+      - name: Upload windows module dll
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/js-bytecode-module.dll
+          asset_name: js-bytecode-module.dll
+          asset_content_type: application/octet-stream
+
+      - name: Upload windows module pdb
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/js-bytecode-module.pdb
+          asset_name: js-bytecode-module.pdb
+          asset_content_type: application/octet-stream
+
+      - name: Upload linux module so
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./dist/libjs-bytecode-module.so
+          asset_name: libjs-bytecode-module.so
+          asset_content_type: application/octet-stream
