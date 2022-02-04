@@ -122,3 +122,17 @@ jobs:
           asset_path: ./dist/libjs-bytecode-module.so
           asset_name: libjs-bytecode-module.so
           asset_content_type: application/octet-stream
+
+  delete-artifacts:
+    name: Delete artifacts
+    runs-on: ubuntu-18.04
+    needs: [deploy]
+    if: ${{ always() }}
+    steps:
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: |
+            bytecode-module-windows-dll
+            bytecode-module-windows-pdb
+            bytecode-module-linux-so
