@@ -50,7 +50,9 @@ jobs:
           sudo apt install clang
 
       - name: Build
-        run: ./build.sh
+        run: |
+          export CXX=/usr/bin/clang++
+          ./build.sh
 
       - name: Upload module so
         uses: actions/upload-artifact@v2
