@@ -35,7 +35,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     if(!result) return;
 
     // Compile the extra files
-    alt::config::Node& config = resource->GetConfig();
+    alt::config::Node config = resource->GetConfig();
     alt::config::Node& node = config["extra-compile-files"];
     if(node && node.IsList())
     {
