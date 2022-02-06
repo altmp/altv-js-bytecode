@@ -69,19 +69,19 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bytecode-module-windows-dll
-          path: dist
+          path: dist-windows
 
       - name: Download windows module pdb
         uses: actions/download-artifact@v2
         with:
           name: bytecode-module-windows-pdb
-          path: dist_debug
+          path: dist
 
       - name: Download linux module so
         uses: actions/download-artifact@v2
         with:
           name: bytecode-module-linux-so
-          path: dist
+          path: dist-linux
 
       - name: Extract version
         id: version
@@ -106,7 +106,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/js-bytecode-module.dll
+          asset_path: ./dist-windows/js-bytecode-module.dll
           asset_name: js-bytecode-module.dll
           asset_content_type: application/octet-stream
 
@@ -116,7 +116,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist_debug/js-bytecode-module.pdb
+          asset_path: ./dist/js-bytecode-module.pdb
           asset_name: js-bytecode-module.pdb
           asset_content_type: application/octet-stream
 
@@ -126,15 +126,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/libjs-bytecode-module.so
+          asset_path: ./dist-linux/libjs-bytecode-module.so
           asset_name: libjs-bytecode-module.so
           asset_content_type: application/octet-stream
 
       - name: Install CDN upload tool
         run: npm i @altmp/upload-tool@latest
 
-      - name: Upload files to CDN
-        run: npx alt-upload dist deps/v8/$BRANCH $VERSION
+      - name: Upload windows files to CDN
+        run: npx alt-upload dist-windows js-bytecode-module/$BRANCH/x64_win32 $VERSION
+        env:
+          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
+          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          BRANCH: ${{ steps.version.outputs.BRANCH }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
+
+      - name: Upload linux files to CDN
+        run: npx alt-upload dist-linux js-bytecode-module/$BRANCH/x64_linux $VERSION
         env:
           CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
           CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
