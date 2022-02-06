@@ -35,12 +35,24 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     if(!result) return;
 
     // Compile the extra files
-    std::vector<std::string> extraFilePatterns = resource->GetConfigStringList("extra-compile-files");
-    std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
-    for(const std::string& file : files)
+    alt::config::Node config = resource->GetConfig();
+    alt::config::Node& node = config["extra-compile-files"];
+    if(node && node.IsList())
     {
-        bool result = compiler.CompileModule(file, false);
-        if(!result) return;
+        alt::config::Node::List& list = node.ToList();
+        std::vector<std::string> extraFilePatterns;
+        extraFilePatterns.reserve(list.size());
+        for(alt::config::Node& item : list)
+        {
+            if(item.IsScalar()) extraFilePatterns.push_back(item.ToString());
+        }
+
+        std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);
+        for(const std::string& file : files)
+        {
+            bool result = compiler.CompileModule(file, false);
+            if(!result) return;
+        }
     }
 
     // Write all other files normally
