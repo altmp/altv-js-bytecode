@@ -75,7 +75,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bytecode-module-windows-pdb
-          path: dist
+          path: dist_debug
 
       - name: Download linux module so
         uses: actions/download-artifact@v2
@@ -116,7 +116,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/js-bytecode-module.pdb
+          asset_path: ./dist_debug/js-bytecode-module.pdb
           asset_name: js-bytecode-module.pdb
           asset_content_type: application/octet-stream
 
@@ -129,6 +129,17 @@ jobs:
           asset_path: ./dist/libjs-bytecode-module.so
           asset_name: libjs-bytecode-module.so
           asset_content_type: application/octet-stream
+
+      - name: Install CDN upload tool
+        run: npm i @altmp/upload-tool@latest
+
+      - name: Upload files to CDN
+        run: npx alt-upload dist deps/v8/$BRANCH $VERSION
+        env:
+          CI_UPLOAD_URL: ${{ secrets.CI_UPLOAD_URL }}
+          CI_DEPLOY_TOKEN: ${{ secrets.CI_DEPLOY_TOKEN }}
+          BRANCH: ${{ steps.version.outputs.BRANCH }}
+          VERSION: ${{ steps.version.outputs.VERSION }}
 
   delete-artifacts:
     name: Delete artifacts
