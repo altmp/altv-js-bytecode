@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdint.h>
+#include "v8.h"
+#include "compiler.h"
 
 namespace Helpers
 {
@@ -23,6 +25,24 @@ namespace Helpers
             for(size_t i = 0; i < sizeof(val); i++)
             {
                 dstPtr[i] = src[sizeof(val) - i - 1];
+            }
+        }
+    }
+    inline void CheckTryCatch(const std::string& fileName, BytecodeCompiler::ILogger* logger, v8::TryCatch& tryCatch, v8::Local<v8::Context> ctx)
+    {
+        if(tryCatch.HasCaught())
+        {
+            v8::Local<v8::Message> message = tryCatch.Message();
+            if(!message.IsEmpty())
+            {
+                v8::Isolate* isolate = ctx->GetIsolate();
+                v8::MaybeLocal<v8::String> maybeString = message->Get();
+                v8::MaybeLocal<v8::String> maybeSourceLine = message->GetSourceLine(ctx);
+                v8::Maybe<int> maybeLine = message->GetLineNumber(ctx);
+
+                if(!maybeLine.IsNothing()) logger->LogError("Exception at " + fileName + ":" + std::to_string(maybeLine.ToChecked()));
+                if(!maybeString.IsEmpty()) logger->LogError(*v8::String::Utf8Value(isolate, maybeString.ToLocalChecked()));
+                if(!maybeSourceLine.IsEmpty()) logger->LogError(*v8::String::Utf8Value(isolate, maybeSourceLine.ToLocalChecked()));
             }
         }
     }

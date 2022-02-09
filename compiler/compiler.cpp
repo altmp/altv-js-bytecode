@@ -22,23 +22,29 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
         return false;
     }
 
+    v8::TryCatch tryCatch(isolate);
+    v8::Local<v8::Context> ctx = v8::Context::New(isolate);
+    v8::Context::Scope ctxScope(ctx);
+
     // Compile the file to a JavaScript module
     v8::ScriptOrigin origin(
       isolate, v8::String::NewFromUtf8(isolate, fileName.c_str()).ToLocalChecked(), 0, 0, false, -1, v8::Local<v8::Value>(), false, false, true, v8::Local<v8::PrimitiveArray>());
     v8::ScriptCompiler::Source source(v8::String::NewFromUtf8(isolate, sourceCode.c_str()).ToLocalChecked(), origin);
     v8::MaybeLocal<v8::Module> maybeModule = v8::ScriptCompiler::CompileModule(isolate, &source);
-    if(maybeModule.IsEmpty())
+    if(maybeModule.IsEmpty() || tryCatch.HasCaught())
     {
-        logger->LogError("Failed to compile module: " + logger->GetHighlightColor() + fileName);
+        logger->LogError("Failed to compile module: " + fileName);
+        Helpers::CheckTryCatch(fileName, logger, tryCatch, ctx);
         return false;
     }
 
     // Retrieve the bytecode from the module
     v8::Local<v8::Module> module = maybeModule.ToLocalChecked();
     v8::ScriptCompiler::CachedData* cache = v8::ScriptCompiler::CreateCodeCache(module->GetUnboundModuleScript());
-    if(cache == nullptr)
+    if(cache == nullptr || tryCatch.HasCaught())
     {
-        logger->LogError("Failed to create bytecode: " + logger->GetHighlightColor() + fileName);
+        logger->LogError("Failed to create bytecode: " + fileName);
+        Helpers::CheckTryCatch(fileName, logger, tryCatch, ctx);
         return false;
     }
 
@@ -47,7 +53,7 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     bool writeResult = package->WriteFile(fileName, (void*)bytecodeResult.data(), bytecodeResult.size());
     if(!writeResult)
     {
-        logger->LogError("Failed to write to file: " + logger->GetHighlightColor() + fileName);
+        logger->LogError("Failed to write to file: " + fileName);
         return false;
     }
 
