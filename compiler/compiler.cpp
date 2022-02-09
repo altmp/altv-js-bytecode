@@ -10,7 +10,7 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     // Read the file
     if(!package->FileExists(fileName))
     {
-        logger->LogError("File not found: " + logger->GetHighlightColor() + fileName);
+        logger->LogError("File not found: " + fileName);
         return false;
     }
     size_t size = package->GetFileSize(fileName);
@@ -18,7 +18,7 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     sourceCode.resize(size);
     if(!package->ReadFile(fileName, sourceCode.data(), sourceCode.size()))
     {
-        logger->LogError("Failed to read file: " + logger->GetHighlightColor() + fileName);
+        logger->LogError("Failed to read file: " + fileName);
         return false;
     }
 
