@@ -19,6 +19,6 @@ public:
     }
     void LogError(const std::string& message) override
     {
-        alt::ICore::Instance().LogError(GetHighlightColor() + prefix + "~w~" + message);
+        alt::ICore::Instance().LogError(std::string(prefix) + " " + message);
     }
 };
