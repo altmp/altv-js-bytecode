@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 
     // Set up the compiler
     BytecodeCompiler::Compiler compiler(isolate, &package, &Logger::Instance());
-    compiler.SetIgnoredModules({ "alt", "alt-client", "natives", "alt-worker" });
+    compiler.SetIgnoredModules({ "alt", "alt-client", "natives", "alt-worker", "alt-shared" });
 
     // Compile the main file
     if(!compiler.CompileModule(clientMainPath.string())) return 1;
