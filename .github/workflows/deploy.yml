@@ -47,7 +47,7 @@ jobs:
       - name: Install Clang
         run: |
           sudo apt update
-          sudo apt install clang
+          sudo apt install clang-6.0
 
       - name: Build
         run: |
