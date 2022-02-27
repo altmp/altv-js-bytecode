@@ -69,7 +69,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bytecode-module-windows-dll
-          path: dist-windows
+          path: dist-windows/modules
 
       - name: Download windows module pdb
         uses: actions/download-artifact@v2
@@ -81,7 +81,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bytecode-module-linux-so
-          path: dist-linux
+          path: dist-linux/modules
 
       - name: Extract version
         id: version
@@ -106,7 +106,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist-windows/js-bytecode-module.dll
+          asset_path: ./dist-windows/modules/js-bytecode-module.dll
           asset_name: js-bytecode-module.dll
           asset_content_type: application/octet-stream
 
@@ -126,7 +126,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist-linux/libjs-bytecode-module.so
+          asset_path: ./dist-linux/modules/libjs-bytecode-module.so
           asset_name: libjs-bytecode-module.so
           asset_content_type: application/octet-stream
 
