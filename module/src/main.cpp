@@ -1,4 +1,5 @@
 #include "cpp-sdk/SDK.h"
+#include "cpp-sdk/version/version.h"
 #include "runtime.h"
 
 EXPORT bool altMain(alt::ICore* core)
@@ -11,7 +12,7 @@ EXPORT bool altMain(alt::ICore* core)
     return true;
 }
 
-EXPORT uint32_t GetSDKVersion()
+EXPORT const char* GetSDKHash()
 {
-    return alt::ICore::SDK_VERSION;
+    return ALT_SDK_VERSION;
 }

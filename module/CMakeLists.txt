@@ -1,3 +1,5 @@
+include(deps/cpp-sdk/CMakeLists.txt)
+
 project("js-bytecode-module")
 
 set(DEPS_FOLDER ${PROJECT_SOURCE_DIR}/deps)
@@ -17,6 +19,8 @@ include_directories(
 add_library(${PROJECT_NAME} SHARED
   ${PROJECT_SOURCE_FILES}
 )
+
+add_dependencies(${PROJECT_NAME} alt-sdk)
 
 include(Shared)
 SetupProject("module")
