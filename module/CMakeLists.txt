@@ -62,7 +62,7 @@ if(WIN32)
 elseif(UNIX)
   set(ALTV_JS_LINKS
     # V8
-    ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
+    ${GLOBAL_DEPS_FOLDER}/v8/lib/libv8_monolith.a
   )
 endif()
 
