@@ -57,8 +57,11 @@ int main(int argc, char* argv[])
         Logger::Instance().Log("  --help: Show this help");
         Logger::Instance().Log("  --input: Specify the resource directory");
         Logger::Instance().Log("  --output: Specify the output directory");
+        Logger::Instance().Log("  --debug: Enables debug info");
         return 0;
     }
+
+    Logger::Instance().ToggleDebugLogs(parser.HasArgument("debug"));
 
     fs::path resourceDir = parser.GetArgument("input");
     if(resourceDir.empty() || !fs::exists(resourceDir) || !fs::is_directory(resourceDir))

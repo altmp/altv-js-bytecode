@@ -30,6 +30,7 @@ namespace BytecodeCompiler
 
         virtual void Log(const std::string& message) = 0;
         virtual void LogError(const std::string& message) = 0;
+        virtual void LogDebug(const std::string& message) {}
     };
 
     class Compiler
