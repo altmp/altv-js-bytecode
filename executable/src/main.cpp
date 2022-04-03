@@ -60,13 +60,13 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    fs::path resourceDir = parser.HasArgument("input") ? parser.GetArgument("input") : "";
+    fs::path resourceDir = parser.GetArgument("input");
     if(resourceDir.empty() || !fs::exists(resourceDir) || !fs::is_directory(resourceDir))
     {
         Logger::Instance().LogError("Invalid input directory specified");
         return 1;
     }
-    fs::path outputDir = parser.HasArgument("output") ? parser.GetArgument("output") : "";
+    fs::path outputDir = parser.GetArgument("output");
     if(outputDir.empty() || !fs::exists(outputDir) || !fs::is_directory(outputDir))
     {
         Logger::Instance().LogError("Invalid output directory specified");
