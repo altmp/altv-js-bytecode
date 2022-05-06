@@ -34,8 +34,9 @@ namespace CLI
         {
             return args.count(name) != 0;
         }
-        std::string GetArgument(const std::string& name) const
+        std::string GetArgument(const std::string& name, const std::string& fallback = "") const
         {
+            if(!HasArgument(name)) return fallback;
             return args.at(name);
         }
     };

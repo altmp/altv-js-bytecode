@@ -1,3 +1,5 @@
+include(deps/cpp-sdk/CMakeLists.txt)
+
 project("js-bytecode-module")
 
 set(DEPS_FOLDER ${PROJECT_SOURCE_DIR}/deps)
@@ -17,6 +19,8 @@ include_directories(
 add_library(${PROJECT_NAME} SHARED
   ${PROJECT_SOURCE_FILES}
 )
+
+add_dependencies(${PROJECT_NAME} alt-sdk)
 
 include(Shared)
 SetupProject("module")
@@ -58,7 +62,7 @@ if(WIN32)
 elseif(UNIX)
   set(ALTV_JS_LINKS
     # V8
-    ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
+    ${GLOBAL_DEPS_FOLDER}/v8/lib/libv8_monolith.a
   )
 endif()
 

@@ -50,7 +50,7 @@ public:
     {
         alt::IPackage::PathInfo path = alt::ICore::Instance().Resolve(resource, file, basePath);
         if(!path.pkg) return std::string();
-        std::string fileName = path.fileName.ToString();
+        std::string fileName = path.fileName;
         if(fileName.size() == 0)
         {
             if(path.pkg->FileExists("index.js")) fileName = "index.js";
@@ -71,6 +71,6 @@ public:
             else if(!path.pkg->FileExists(fileName))
                 return std::string();
         }
-        return path.prefix.ToString() + fileName;
+        return path.prefix + fileName;
     }
 };
