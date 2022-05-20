@@ -4,9 +4,9 @@ Repository containing the JS bytecode compiler, stand-alone executable and modul
 
 ## Structure
 
-| Directory              | Description                                             |
-| ---------------------- | ------------------------------------------------------- |
-| [/compiler](/compiler) | The JS bytecode compiler implementation                 |
-| [/module](/module)     | The alt:V module using the JS bytecode compiler         |
-| [/program](/program)   | The stand-alone program using the JS bytecode compiler  |
-| [/docs](/docs)         | Documentation and information around this repository    |
+| Directory                    | Description                                                |
+| ---------------------------- | ---------------------------------------------------------- |
+| [/compiler](/compiler)       | The JS bytecode compiler implementation                    |
+| [/module](/module)           | The alt:V module using the JS bytecode compiler            |
+| [/executable](/executable)   | The stand-alone executable using the JS bytecode compiler  |
+| [/docs](/docs)               | Documentation and information around this repository       |
