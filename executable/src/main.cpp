@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
     alt::config::Node clientMain = resourceCfg["client-main"];
     if(!clientMain.IsScalar())
     {
-        Logger::Instance().LogError("Failed to find suitable client-main in resource.cfg");
+        Logger::Instance().LogError("Failed to find client-main in resource.cfg");
         return 1;
     }
     std::string clientMainFile = clientMain.ToString();
