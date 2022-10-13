@@ -27,7 +27,19 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     Logger compilerLogger;
     BytecodeCompiler::Compiler compiler(isolate, &compilerPackage, &compilerLogger);
 
-    static std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    Config::Value::ValuePtr config = resource->GetConfig();
+    // Get ignored files
+    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    Config::Value::ValuePtr ignoredFiles = config->Get("ignored-files");
+    if(ignoredFiles->IsList())
+    {
+        Config::Value::List list = ignoredFiles->As<Config::Value::List>();
+        ignoredModules.reserve(ignoredModules.size() + list.size());
+        for(auto& item : list)
+        {
+            if(item->IsString()) ignoredModules.push_back(item->As<std::string>());
+        }
+    }
     compiler.SetIgnoredModules(ignoredModules);
 
     // Compile client main file
@@ -35,7 +47,6 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     if(!result) return;
 
     // Compile the extra files
-    Config::Value::ValuePtr config = resource->GetConfig();
     Config::Value::ValuePtr extraCompileFiles = config->Get("extra-compile-files");
     if(extraCompileFiles->IsList())
     {
