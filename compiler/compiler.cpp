@@ -104,7 +104,7 @@ bool Compiler::IsBytecodeFile(void* buffer, size_t size)
 std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int length, int sourceLength)
 {
     // Make necessary changes to the bytecode
-    FixBytecode(buffer);
+    FixBytecode(buffer, sourceLength);
 
     // Create our own custom bytecode buffer by appending our magic bytes
     // at the front, and then the bytecode itself at the end
@@ -119,18 +119,16 @@ std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int l
     return buf;
 }
 
-// Hash for empty module ("")
-static constexpr uint32_t srcHash = 2147483648;
 static constexpr int srcHashOffset = 8;
 
 static constexpr uint32_t flagsHash = 3901848073;
 static constexpr int flagsHashOffset = 12;
 
-void Compiler::FixBytecode(const uint8_t* buffer)
+void Compiler::FixBytecode(const uint8_t* buffer, int sourceLength)
 {
-    // Copy hash of empty source file into bytecode source hash section
+    // Copy hash of source into bytecode source hash section
     // Needed because V8 compares the bytecode code hash to provided source hash
-    Helpers::CopyValueToBuffer(buffer, srcHashOffset, srcHash);
+    Helpers::CopyValueToBuffer(buffer, srcHashOffset, Helpers::CreateV8SourceHash(sourceLength));
 
     // Overwrite flags hash with the hash used in client js
     // !!! Make sure to update the hash if flags in client js change !!!

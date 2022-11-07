@@ -75,6 +75,6 @@ namespace BytecodeCompiler
     private:
         std::vector<uint8_t> CreateBytecodeBuffer(const uint8_t* buffer, int length, int sourceLength);
 
-        static void FixBytecode(const uint8_t* buffer);
+        static void FixBytecode(const uint8_t* buffer, int sourceLength);
     };
 }  // namespace BytecodeCompiler
