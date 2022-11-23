@@ -49,7 +49,7 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     }
 
     // Write the bytecode to file
-    std::vector<uint8_t> bytecodeResult = CreateBytecodeBuffer(cache->data, cache->length);
+    std::vector<uint8_t> bytecodeResult = CreateBytecodeBuffer(cache->data, cache->length, sourceCode.size());
     bool writeResult = package->WriteFile(fileName, (void*)bytecodeResult.data(), bytecodeResult.size());
     if(!writeResult)
     {
@@ -101,35 +101,34 @@ bool Compiler::IsBytecodeFile(void* buffer, size_t size)
     return true;
 }
 
-std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int length)
+std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int length, int sourceLength)
 {
     // Make necessary changes to the bytecode
-    FixBytecode(buffer);
+    FixBytecode(buffer, sourceLength);
 
     // Create our own custom bytecode buffer by appending our magic bytes
     // at the front, and then the bytecode itself at the end
     std::vector<uint8_t> buf;
-    size_t bufSize = magicBytes.size() + length;
+    size_t bufSize = magicBytes.size() + sizeof(int) + length;
     buf.resize(bufSize);
 
     memcpy(buf.data(), magicBytes.data(), magicBytes.size());
-    memcpy(buf.data() + magicBytes.size(), buffer, length);
+    memcpy(buf.data() + magicBytes.size(), &sourceLength, sizeof(int));
+    memcpy(buf.data() + magicBytes.size() + sizeof(int), buffer, length);
 
-    return std::move(buf);
+    return buf;
 }
 
-// Hash for empty module ("")
-static constexpr uint32_t srcHash = 2147483648;
 static constexpr int srcHashOffset = 8;
 
 static constexpr uint32_t flagsHash = 3901848073;
 static constexpr int flagsHashOffset = 12;
 
-void Compiler::FixBytecode(const uint8_t* buffer)
+void Compiler::FixBytecode(const uint8_t* buffer, int sourceLength)
 {
-    // Copy hash of empty source file into bytecode source hash section
+    // Copy hash of source into bytecode source hash section
     // Needed because V8 compares the bytecode code hash to provided source hash
-    Helpers::CopyValueToBuffer(buffer, srcHashOffset, srcHash);
+    Helpers::CopyValueToBuffer(buffer, srcHashOffset, Helpers::CreateV8SourceHash(sourceLength));
 
     // Overwrite flags hash with the hash used in client js
     // !!! Make sure to update the hash if flags in client js change !!!
