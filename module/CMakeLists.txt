@@ -42,13 +42,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
   ${ALTV_JS_DEFS}
 )
 
-if(UNIX)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -std=c++20
-        -stdlib=libstdc++
-    )
-endif()
-
 if(WIN32)
   set(ALTV_JS_LINKS
     # Platform binaries
