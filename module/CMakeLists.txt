@@ -44,7 +44,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 if(UNIX)
     target_compile_options(${PROJECT_NAME} PRIVATE
-        -std=c++17
+        -std=c++20
         -stdlib=libstdc++
     )
 endif()
