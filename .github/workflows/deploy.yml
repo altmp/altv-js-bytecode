@@ -37,7 +37,7 @@ jobs:
 
   build-linux:
     name: Build linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -47,11 +47,11 @@ jobs:
       - name: Install Clang
         run: |
           sudo apt update
-          sudo apt install clang-6.0
+          sudo apt install clang-14.0
 
       - name: Build
         run: |
-          export CXX=/usr/bin/clang++-6.0
+          export CXX=/usr/bin/clang++-14.0
           ./build.sh
 
       - name: Upload module so
