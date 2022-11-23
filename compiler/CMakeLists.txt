@@ -12,8 +12,6 @@ add_library(${PROJECT_NAME} STATIC "compiler.cpp")
 
 if(UNIX)
     target_compile_options(${PROJECT_NAME} PRIVATE
-        -std=c++17
-        -stdlib=libstdc++
         -fPIC
     )
 endif()

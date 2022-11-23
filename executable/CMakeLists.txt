@@ -16,6 +16,12 @@ add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCE_FILES}
 )
 
+if(UNIX)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -fPIC
+    )
+endif()
+
 include(Shared)
 SetupProject("executable")
 
@@ -27,10 +33,6 @@ if(WIN32)
         ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/v8_monolith.lib
     )
 elseif(UNIX)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -std=c++17
-        -stdlib=libstdc++
-    )
     set(LINK_LIBS
         ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
     )
