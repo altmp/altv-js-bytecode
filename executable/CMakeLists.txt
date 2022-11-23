@@ -16,6 +16,12 @@ add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCE_FILES}
 )
 
+if(UNIX)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -fPIC
+    )
+endif()
+
 include(Shared)
 SetupProject("executable")
 

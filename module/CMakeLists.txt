@@ -20,6 +20,12 @@ add_library(${PROJECT_NAME} SHARED
   ${PROJECT_SOURCE_FILES}
 )
 
+if(UNIX)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -fPIC
+    )
+endif()
+
 add_dependencies(${PROJECT_NAME} alt-sdk)
 
 include(Shared)
