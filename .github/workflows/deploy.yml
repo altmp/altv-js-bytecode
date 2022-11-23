@@ -46,7 +46,6 @@ jobs:
 
       - name: Build
         run: |
-          export CXX=/usr/bin/clang++-14
           ./build.sh
 
       - name: Upload module so
