@@ -85,8 +85,13 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
 
             // Compile the dependency file
             std::string fullFileName = package->ResolveFile(depPath, fileName);
+
             // Check if the file has already been compiled
             if(std::find(compiledFiles.begin(), compiledFiles.end(), fullFileName) != compiledFiles.end()) continue;
+
+            // Dont compile if the module is ignored
+            if(std::find(ignoredModules.begin(), ignoredModules.end(), fullFileName) != ignoredModules.end()) continue;
+
             if(!CompileModule(fullFileName, true)) return false;
         }
     }
