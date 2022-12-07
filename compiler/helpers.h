@@ -28,6 +28,13 @@ namespace Helpers
             }
         }
     }
+    // Copies 'SerializedCodeData::SourceHash' behaviour
+    inline uint32_t CreateV8SourceHash(uint32_t sourceSize)
+    {
+        // We always use modules, so this flag is always used
+        static constexpr uint32_t moduleFlagMask = (1 << 31);
+        return sourceSize | moduleFlagMask;
+    }
     inline void CheckTryCatch(const std::string& fileName, BytecodeCompiler::ILogger* logger, v8::TryCatch& tryCatch, v8::Local<v8::Context> ctx)
     {
         if(tryCatch.HasCaught())

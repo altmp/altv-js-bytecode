@@ -27,7 +27,19 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     Logger compilerLogger;
     BytecodeCompiler::Compiler compiler(isolate, &compilerPackage, &compilerLogger);
 
-    static std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    Config::Value::ValuePtr config = resource->GetConfig();
+    // Get ignored files
+    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    Config::Value::ValuePtr ignoredFiles = config->Get("ignored-files");
+    if(ignoredFiles->IsList())
+    {
+        Config::Value::List list = ignoredFiles->As<Config::Value::List>();
+        ignoredModules.reserve(ignoredModules.size() + list.size());
+        for(auto& item : list)
+        {
+            if(item->IsString()) ignoredModules.push_back(item->As<std::string>());
+        }
+    }
     compiler.SetIgnoredModules(ignoredModules);
 
     // Compile client main file
@@ -35,16 +47,15 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     if(!result) return;
 
     // Compile the extra files
-    alt::config::Node config = resource->GetConfig();
-    alt::config::Node& node = config["extra-compile-files"];
-    if(node && node.IsList())
+    Config::Value::ValuePtr extraCompileFiles = config->Get("extra-compile-files");
+    if(extraCompileFiles->IsList())
     {
-        alt::config::Node::List& list = node.ToList();
+        Config::Value::List list = extraCompileFiles->As<Config::Value::List>();
         std::vector<std::string> extraFilePatterns;
         extraFilePatterns.reserve(list.size());
-        for(alt::config::Node& item : list)
+        for(auto& item : list)
         {
-            if(item.IsScalar()) extraFilePatterns.push_back(item.ToString());
+            if(item->IsString()) extraFilePatterns.push_back(item->As<std::string>());
         }
 
         std::set<std::string> files = resource->GetMatchedFiles(extraFilePatterns);

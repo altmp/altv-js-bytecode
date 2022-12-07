@@ -20,6 +20,12 @@ add_library(${PROJECT_NAME} SHARED
   ${PROJECT_SOURCE_FILES}
 )
 
+if(UNIX)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        -fPIC
+    )
+endif()
+
 add_dependencies(${PROJECT_NAME} alt-sdk)
 
 include(Shared)
@@ -41,13 +47,6 @@ set(ALTV_JS_DEFS
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   ${ALTV_JS_DEFS}
 )
-
-if(UNIX)
-    target_compile_options(${PROJECT_NAME} PRIVATE
-        -std=c++17
-        -stdlib=libstdc++
-    )
-endif()
 
 if(WIN32)
   set(ALTV_JS_LINKS

@@ -13,10 +13,12 @@ static void CommandHandler(const std::vector<std::string>& args)
     else if(args[0] == "--version")
     {
         Log::Colored << "~ly~cpp-sdk: #" << ALT_SDK_VERSION << Log::Endl;
-        Log::Colored << "~ly~" << u8"Copyright © 2022 altMP team." << Log::Endl;
+        Log::Colored << "~ly~"
+                     << "Copyright | 2022 altMP team." << Log::Endl;
 
         Log::Colored << "~ly~v8: " << v8::V8::GetVersion() << Log::Endl;
-        Log::Colored << "~ly~" << u8"Copyright © 2014 The V8 project authors." << Log::Endl;
+        Log::Colored << "~ly~"
+                     << "Copyright | 2014 The V8 project authors." << Log::Endl;
     }
     else if(args[0] == "--help")
     {
