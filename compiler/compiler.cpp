@@ -133,7 +133,7 @@ void Compiler::FixBytecode(const uint8_t* buffer, int sourceLength)
 {
     // Copy hash of source into bytecode source hash section
     // Needed because V8 compares the bytecode code hash to provided source hash
-    Helpers::CopyValueToBuffer(buffer, srcHashOffset, Helpers::CreateV8SourceHash(sourceLength + 2));
+    Helpers::CopyValueToBuffer(buffer, srcHashOffset, Helpers::CreateV8SourceHash(sourceLength));
 
     // Overwrite flags hash with the hash used in client js
     // !!! Make sure to update the hash if flags in client js change !!!
