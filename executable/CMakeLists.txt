@@ -25,6 +25,21 @@ endif()
 include(Shared)
 SetupProject("executable")
 
+set(ALTV_JS_DEFS
+    # Compliation
+    -DCXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
+    # Platform
+    -DUNICODE
+    -D_UNICODE
+    # v8
+    -DV8_COMPRESS_POINTERS
+    -DV8_31BIT_SMIS_ON_64BIT_ARCH
+    -DV8_IMMINENT_DEPRECATION_WARNINGS
+  )
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  ${ALTV_JS_DEFS}
+)
+
 if(WIN32)
     set(LINK_LIBS
         Winmm.lib
