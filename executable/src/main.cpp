@@ -1,14 +1,11 @@
-#include "cli.h"
-#include "logger.h"
-#include "package.h"
-
+#include "libplatform/libplatform.h"
 #include "alt-config/alt-config.h"
-
 #include "toml/TomlConfig.h"
 
+#include "package.h"
+#include "logger.h"
+#include "cli.h"
 #include "v8.h"
-#include "libplatform/libplatform.h"
-#include <format>
 
 namespace fs = std::filesystem;
 
@@ -83,7 +80,7 @@ static Config::Value::ValuePtr GetResourceConfig(Package& package, const fs::pat
 }
 
 static fs::path GetClientMain(Package& package, const fs::path& resourceDir) {
-        // Read the resource.cfg
+    // Read the resource.cfg
     Config::Value::ValuePtr config = GetResourceConfig(package, resourceDir / "resource.toml");
     std::string clientMainFile = config->Get("client-main")->AsString();
 
