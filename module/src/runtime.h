@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cpp-sdk/SDK.h"
+#include "SDK.h"
 #include "v8.h"
 #include "libplatform/libplatform.h"
 

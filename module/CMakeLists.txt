@@ -1,4 +1,4 @@
-include(deps/cpp-sdk/CMakeLists.txt)
+include(${GLOBAL_DEPS_FOLDER}/cpp-sdk/CMakeLists.txt)
 
 project("js-bytecode-module")
 
@@ -12,6 +12,7 @@ GroupSources(${GLOBAL_COMPILER_PATH} "Compiler Files")
 
 include_directories(
   "${PROJECT_SOURCE_DIR}/deps"
+  "${GLOBAL_DEPS_FOLDER}/cpp-sdk"
   "${GLOBAL_DEPS_FOLDER}/v8/include"
   "${GLOBAL_COMPILER_PATH}"
 )
