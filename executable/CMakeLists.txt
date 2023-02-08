@@ -3,6 +3,7 @@ project("bytecode-executable")
 include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/deps"
+    "${GLOBAL_DEPS_FOLDER}/cpp-sdk/deps"
     "${GLOBAL_DEPS_FOLDER}/v8/include"
     "${GLOBAL_COMPILER_PATH}"
 )

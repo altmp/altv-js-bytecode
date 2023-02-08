@@ -17,14 +17,12 @@ public:
 
     bool WriteFile(const std::string& fileName, void* data, size_t size) override
     {
-        // Remove the input path from the file path
-        size_t result = fileName.find(inPath.string());
-        if(result == std::string::npos) return false;
-        std::string filePath = fileName.substr(result);
+        fs::path p (fileName);
+        fs::path filePath = p.replace_extension(".bin").filename();
 
-        fs::path path = outPath / filePath;
-        std::ofstream file(path, std::ios::out | std::ios::binary);
+        std::ofstream file(outPath / filePath, std::ios::out | std::ios::binary);
         if(!file.good()) return false;
+
         file.write((char*)data, size);
         file.close();
         return true;
