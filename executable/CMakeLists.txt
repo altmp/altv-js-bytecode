@@ -50,7 +50,7 @@ if(WIN32)
     )
 elseif(UNIX)
     set(LINK_LIBS
-        ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
+        ${GLOBAL_DEPS_FOLDER}/v8/lib/libv8_monolith.a
     )
 endif()
 
