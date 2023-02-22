@@ -9,7 +9,8 @@
 
 namespace fs = std::filesystem;
 
-static void EvaluateArgs(CLI::Parser& parser) {
+static void EvaluateArgs(CLI::Parser& parser)
+{
     Logger logger = Logger::Instance();
 
     if(parser.IsEmpty())
@@ -22,7 +23,7 @@ static void EvaluateArgs(CLI::Parser& parser) {
     {
         logger.Log("Available arguments:");
         logger.Log("  --help: Show this help");
-        logger.Log("  --input: Specify the resource directory");
+        logger.Log("  --input: Specify the input file");
         logger.Log("  --output: Specify the output directory");
         logger.Log("  --debug: Enables debug info");
         exit(0);
@@ -31,68 +32,31 @@ static void EvaluateArgs(CLI::Parser& parser) {
     logger.ToggleDebugLogs(parser.HasArgument("debug"));
 }
 
-static fs::path GetResourceDir(CLI::Parser& parser) {
-    fs::path resourceDir = parser.GetArgument("input");
+static fs::path GetInputFile(CLI::Parser& parser)
+{
+    fs::path inputFile = parser.GetArgument("input");
 
-    if(resourceDir.empty() || !fs::exists(resourceDir) || !fs::is_directory(resourceDir))
+    if(inputFile.empty() || !fs::exists(inputFile) || !fs::is_regular_file(inputFile))
     {
-        Logger::Instance().LogError("Invalid input directory specified");
+        Logger::Instance().LogError("Invalid input file specified");
         exit(1);
     }
 
-    return resourceDir;
+    return inputFile;
 }
 
-static fs::path GetOutputDir(CLI::Parser& parser) {
+static fs::path GetOutputDir(CLI::Parser& parser)
+{
     fs::path outputDir = parser.GetArgument("output");
 
-    if(outputDir.empty() || !fs::exists(outputDir) || !fs::is_directory(outputDir))
+    if(outputDir.empty() || (fs::exists(outputDir) && !fs::is_directory(outputDir)))
     {
         Logger::Instance().LogError("Invalid output directory specified");
         exit(1);
     }
 
+    if(!fs::exists(outputDir)) fs::create_directory(outputDir);
     return outputDir;
-}
-
-static Config::Value::ValuePtr GetResourceConfig(Package& package, const fs::path& path)
-{
-    // Check if the input directory has a resource.toml
-    if(!fs::exists(path.string()))
-    {
-        Logger::Instance().LogError("Input directory does not contain a resource.toml");
-        exit(1);
-    }
-
-    // Read the resource.toml
-    std::string resourceCfgSource;
-    resourceCfgSource.resize(package.GetFileSize(path.string()));
-
-    if(!package.ReadFile(path.string(), resourceCfgSource.data(), resourceCfgSource.size()))
-    {
-        Logger::Instance().LogError("Failed to read resource.toml");
-        exit(1);
-    }
-
-    // Parse the resource.toml
-    std::string error = "Failed to parse resource.toml";
-    return TomlConfig::Parse(resourceCfgSource, error);
-}
-
-static fs::path GetClientMain(Package& package, const fs::path& resourceDir) {
-    // Read the resource.cfg
-    Config::Value::ValuePtr config = GetResourceConfig(package, resourceDir / "resource.toml");
-    std::string clientMainFile = config->Get("client-main")->AsString();
-
-    // Get the resource client-main file
-    if(clientMainFile.empty())
-    {
-        Logger::Instance().LogError("Failed to find client-main in resource.toml");
-        exit(1);
-    }
-
-    // no need to check is the clientMainPath exists as its checked in the compiler
-    return resourceDir / clientMainFile;
 }
 
 int main(int argc, char* argv[])
@@ -100,7 +64,7 @@ int main(int argc, char* argv[])
     CLI::Parser parser(argc, argv);
 
     EvaluateArgs(parser);
-    fs::path resourceDir = GetResourceDir(parser);
+    fs::path inputFile = GetInputFile(parser);
     fs::path outputDir = GetOutputDir(parser);
 
     // Set up v8
@@ -118,13 +82,12 @@ int main(int argc, char* argv[])
     v8::HandleScope handleScope(isolate);
 
     // Set up the file package, to read and write files
-    Package package(outputDir, resourceDir);
-    fs::path clientMain = GetClientMain(package, resourceDir);
+    Package package(outputDir);
 
     // Set up the compiler
     BytecodeCompiler::Compiler compiler(isolate, &package, &Logger::Instance());
-    compiler.SetIgnoredModules({ "alt", "alt-client", "natives", "alt-worker", "alt-shared" });
+    compiler.SetIgnoredModules({ "alt", "alt-server", "alt-shared" });
 
     // Compile the main file
-    return compiler.CompileModule(clientMain.string()) ? 0 : 1;
+    return compiler.CompileModule(inputFile.string()) ? 0 : 1;
 }

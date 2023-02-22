@@ -10,15 +10,14 @@ namespace fs = std::filesystem;
 class Package : public BytecodeCompiler::IPackage
 {
     fs::path outPath;
-    fs::path inPath;
 
 public:
-    Package(fs::path _outPath, fs::path _inPath) : outPath(_outPath), inPath(_inPath) {}
+    Package(fs::path _outPath) : outPath(_outPath) {}
 
     bool WriteFile(const std::string& fileName, void* data, size_t size) override
     {
-        fs::path p (fileName);
-        fs::path filePath = p.replace_extension(".bin").filename();
+        fs::path p(fileName);
+        fs::path filePath = p.replace_extension(".jsb").filename();
 
         std::ofstream file(outPath / filePath, std::ios::out | std::ios::binary);
         if(!file.good()) return false;
@@ -49,30 +48,8 @@ public:
     }
     std::string ResolveFile(const std::string& file, const std::string& basePath) override
     {
-        fs::path path = fs::path(basePath) / file;
+        fs::path path = (fs::path(basePath).remove_filename() / file).lexically_normal();
         if(!fs::exists(path)) return std::string();
-        fs::path rootPath = path.root_path().string();
-        fs::path fileName = path.filename().string();
-        if(fileName.empty())
-        {
-            if(FileExists(rootPath / "index.js")) fileName = "index.js";
-            else if(FileExists(rootPath / "index.mjs"))
-                fileName = "index.mjs";
-            else
-                return std::string();
-        }
-        else
-        {
-            if(FileExists(rootPath / fs::path(fileName.string() + ".js"))) fileName += ".js";
-            else if(FileExists(rootPath / fs::path(fileName.string() + ".mjs")))
-                fileName += ".mjs";
-            else if(FileExists(rootPath / fs::path(fileName.string() + "/index.js")))
-                fileName += "/index.js";
-            else if(FileExists(rootPath / fs::path(fileName.string() + "/index.mjs")))
-                fileName += "/index.mjs";
-            else if(!FileExists(fileName))
-                return std::string();
-        }
-        return (rootPath / fileName).string();
+        return path.string();
     }
 };
