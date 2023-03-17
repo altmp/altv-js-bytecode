@@ -3,6 +3,7 @@ project("bytecode-executable")
 include_directories(
     "${PROJECT_SOURCE_DIR}"
     "${PROJECT_SOURCE_DIR}/deps"
+    "${GLOBAL_DEPS_FOLDER}/cpp-sdk/deps"
     "${GLOBAL_DEPS_FOLDER}/v8/include"
     "${GLOBAL_COMPILER_PATH}"
 )
@@ -25,6 +26,21 @@ endif()
 include(Shared)
 SetupProject("executable")
 
+set(ALTV_JS_DEFS
+    # Compliation
+    -DCXX_COMPILER_ID="${CMAKE_CXX_COMPILER_ID}"
+    # Platform
+    -DUNICODE
+    -D_UNICODE
+    # v8
+    -DV8_COMPRESS_POINTERS
+    -DV8_31BIT_SMIS_ON_64BIT_ARCH
+    -DV8_IMMINENT_DEPRECATION_WARNINGS
+  )
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+  ${ALTV_JS_DEFS}
+)
+
 if(WIN32)
     set(LINK_LIBS
         Winmm.lib
@@ -34,7 +50,7 @@ if(WIN32)
     )
 elseif(UNIX)
     set(LINK_LIBS
-        ${GLOBAL_DEPS_FOLDER}/v8/lib/$<IF:$<CONFIG:Debug>,Debug,Release>/libv8_monolith.a
+        ${GLOBAL_DEPS_FOLDER}/v8/lib/libv8_monolith.a
     )
 endif()
 

@@ -85,6 +85,11 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
 
             // Compile the dependency file
             std::string fullFileName = package->ResolveFile(depPath, fileName);
+            if(!package->FileExists(fullFileName))
+            {
+                logger->LogError("File not found: " + depPath);
+                return false;
+            }
 
             // Check if the file has already been compiled
             if(std::find(compiledFiles.begin(), compiledFiles.end(), fullFileName) != compiledFiles.end()) continue;
@@ -126,14 +131,14 @@ std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int l
 
 static constexpr int srcHashOffset = 8;
 
-static constexpr uint32_t flagsHash = 3901848073;
+static constexpr uint32_t flagsHash = 243571335;
 static constexpr int flagsHashOffset = 12;
 
 void Compiler::FixBytecode(const uint8_t* buffer, int sourceLength)
 {
     // Copy hash of source into bytecode source hash section
     // Needed because V8 compares the bytecode code hash to provided source hash
-    Helpers::CopyValueToBuffer(buffer, srcHashOffset, Helpers::CreateV8SourceHash(sourceLength));
+    Helpers::CopyValueToBuffer(buffer, srcHashOffset, Helpers::CreateV8SourceHash(sourceLength + 2));
 
     // Overwrite flags hash with the hash used in client js
     // !!! Make sure to update the hash if flags in client js change !!!

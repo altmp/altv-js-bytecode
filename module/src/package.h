@@ -1,7 +1,7 @@
 #pragma once
 
 #include "compiler.h"
-#include "cpp-sdk/SDK.h"
+#include "SDK.h"
 
 class Package : public BytecodeCompiler::IPackage
 {
