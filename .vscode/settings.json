@@ -72,7 +72,8 @@
         "xlocmes": "cpp",
         "filesystem": "cpp",
         "set": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "variant": "cpp"
     },
     "editor.defaultFormatter": "xaver.clang-format",
     "editor.formatOnSave": true

@@ -1,5 +1,5 @@
-#include "cpp-sdk/SDK.h"
-#include "cpp-sdk/version/version.h"
+#include "SDK.h"
+#include "version/version.h"
 #include "Log.h"
 #include "runtime.h"
 

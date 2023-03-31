@@ -22,5 +22,6 @@ endif()
 
 add_subdirectory("compiler")
 add_subdirectory("module")
-# WIP
-# add_subdirectory("executable")
+if(WIN32)
+    add_subdirectory("executable")
+endif()
