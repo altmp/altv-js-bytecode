@@ -73,8 +73,8 @@ namespace BytecodeCompiler
         bool IsBytecodeFile(void* buffer, size_t size);
 
     private:
-        std::vector<uint8_t> CreateBytecodeBuffer(const uint8_t* buffer, int length, int sourceLength);
+        std::vector<uint8_t> CreateBytecodeBuffer(const uint8_t* buffer, int length);
 
-        static void FixBytecode(const uint8_t* buffer, int sourceLength);
+        static void FixBytecode(const uint8_t* buffer);
     };
 }  // namespace BytecodeCompiler
