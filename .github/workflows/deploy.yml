@@ -82,8 +82,8 @@ jobs:
         shell: bash
         run: |
           TAG=${GITHUB_REF/refs\/tags\//}
-          echo ::set-output name=BRANCH::${TAG/\/*}
-          echo ::set-output name=VERSION::${TAG/*\/}
+          echo "BRANCH=${TAG/\/*}" >> $GITHUB_OUTPUT
+          echo "VERSION=${TAG/*\/}" >> $GITHUB_OUTPUT
 
       - name: Create release
         id: create_release
