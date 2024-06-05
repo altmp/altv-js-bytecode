@@ -29,7 +29,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
 
     Config::Value::ValuePtr config = resource->GetConfig();
     // Get ignored files
-    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared", "@altv/client", "@altv/server", "@altv/shared", "@altv/natives" };
     Config::Value::ValuePtr ignoredFiles = config->Get("ignored-files");
     if(ignoredFiles->IsList())
     {
