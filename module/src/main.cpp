@@ -35,6 +35,7 @@ EXPORT bool altMain(alt::ICore* core)
 
     auto& runtime = JSBytecodeRuntime::Instance();
     core->RegisterScriptRuntime("jsb", &runtime);
+    core->RegisterScriptRuntime("jsv2b", &runtime);
 
     core->SubscribeCommand("jsb-module", &CommandHandler);
 
