@@ -1,10 +1,10 @@
-#include "runtime.h"
+#include "runtimev2.h"
 #include "Log.h"
 #include "compiler.h"
 #include "package.h"
 #include "logger.h"
 
-JSBytecodeRuntime::JSBytecodeRuntime()
+JSBytecodeRuntimeV2::JSBytecodeRuntimeV2()
 {
     v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy --no-flush-bytecode --no-enable-lazy-source-positions");
     platform = v8::platform::NewDefaultPlatform();
@@ -16,7 +16,7 @@ JSBytecodeRuntime::JSBytecodeRuntime()
     isolate = v8::Isolate::New(create_params);
 }
 
-void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackage* package)
+void JSBytecodeRuntimeV2::ProcessClientFile(alt::IResource* resource, alt::IPackage* package)
 {
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
@@ -29,7 +29,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
 
     Config::Value::ValuePtr config = resource->GetConfig();
     // Get ignored files
-    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared", "@altv/client", "@altv/server", "@altv/shared", "@altv/natives" };
     Config::Value::ValuePtr ignoredFiles = config->Get("ignored-files");
     if(ignoredFiles->IsList())
     {
@@ -89,8 +89,8 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     }
 }
 
-bool JSBytecodeRuntime::GetProcessClientType(std::string& clientType)
+bool JSBytecodeRuntimeV2::GetProcessClientType(std::string& clientType)
 {
-    clientType = "jsb";
+    clientType = "jsv2b";
     return true;
 }

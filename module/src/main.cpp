@@ -2,6 +2,7 @@
 #include "version/version.h"
 #include "Log.h"
 #include "runtime.h"
+#include "runtimev2.h"
 
 static void CommandHandler(const std::vector<std::string>& args)
 {
@@ -35,7 +36,9 @@ EXPORT bool altMain(alt::ICore* core)
 
     auto& runtime = JSBytecodeRuntime::Instance();
     core->RegisterScriptRuntime("jsb", &runtime);
-    core->RegisterScriptRuntime("jsv2b", &runtime);
+
+    auto& runtimeV2 = JSBytecodeRuntimeV2::Instance();
+    core->RegisterScriptRuntime("jsv2b", &runtimeV2);
 
     core->SubscribeCommand("jsb-module", &CommandHandler);
 
