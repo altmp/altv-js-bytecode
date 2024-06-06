@@ -1,3 +1,4 @@
+#include "CScriptRuntimeInfo.h"
 #include "SDK.h"
 #include "version/version.h"
 #include "Log.h"
@@ -34,11 +35,10 @@ EXPORT bool altMain(alt::ICore* core)
 {
     alt::ICore::SetInstance(core);
 
-    auto& runtime = JSBytecodeRuntime::Instance();
-    core->RegisterScriptRuntime("jsb", &runtime);
+    CScriptRuntimeInfo::Instance().Instanciate();
 
-    auto& runtimeV2 = JSBytecodeRuntimeV2::Instance();
-    core->RegisterScriptRuntime("jsv2b", &runtimeV2);
+    core->RegisterScriptRuntime("jsb", &JSBytecodeRuntime::Instance());
+    core->RegisterScriptRuntime("jsv2b", &JSBytecodeRuntimeV2::Instance());
 
     core->SubscribeCommand("jsb-module", &CommandHandler);
 

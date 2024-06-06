@@ -1,23 +1,13 @@
 #include "runtime.h"
 #include "Log.h"
 #include "compiler.h"
+#include "CScriptRuntimeInfo.h"
 #include "package.h"
 #include "logger.h"
 
-JSBytecodeRuntime::JSBytecodeRuntime()
-{
-    v8::V8::SetFlagsFromString("--harmony-import-assertions --short-builtin-calls --no-lazy --no-flush-bytecode --no-enable-lazy-source-positions");
-    platform = v8::platform::NewDefaultPlatform();
-    v8::V8::InitializePlatform(platform.get());
-    v8::V8::Initialize();
-
-    create_params.array_buffer_allocator = v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-
-    isolate = v8::Isolate::New(create_params);
-}
-
 void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackage* package)
 {
+    v8::Isolate* isolate = CScriptRuntimeInfo::Instance().GetIsolate();
     v8::Isolate::Scope isolateScope(isolate);
     v8::HandleScope handleScope(isolate);
 
