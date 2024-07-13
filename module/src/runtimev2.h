@@ -3,7 +3,7 @@
 #include "SDK.h"
 #include "v8.h"
 
-class JSBytecodeRuntime : public alt::IScriptRuntime
+class JSBytecodeRuntimeV2 : public alt::IScriptRuntime
 {
 public:
     bool GetProcessClientType(std::string& clientType) override;
@@ -16,9 +16,9 @@ public:
 
     void DestroyImpl(alt::IResource::Impl* impl) override {}
 
-    static JSBytecodeRuntime& Instance()
+    static JSBytecodeRuntimeV2& Instance()
     {
-        static JSBytecodeRuntime runtime;
+        static JSBytecodeRuntimeV2 runtime;
         return runtime;
     }
 };

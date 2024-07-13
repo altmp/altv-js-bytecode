@@ -1,7 +1,9 @@
+#include "CScriptRuntimeInfo.h"
 #include "SDK.h"
 #include "version/version.h"
 #include "Log.h"
 #include "runtime.h"
+#include "runtimev2.h"
 
 static void CommandHandler(const std::vector<std::string>& args)
 {
@@ -33,8 +35,10 @@ EXPORT bool altMain(alt::ICore* core)
 {
     alt::ICore::SetInstance(core);
 
-    auto& runtime = JSBytecodeRuntime::Instance();
-    core->RegisterScriptRuntime("jsb", &runtime);
+    CScriptRuntimeInfo::Instance().Instanciate();
+
+    core->RegisterScriptRuntime("jsb", &JSBytecodeRuntime::Instance());
+    core->RegisterScriptRuntime("jsv2b", &JSBytecodeRuntimeV2::Instance());
 
     core->SubscribeCommand("jsb-module", &CommandHandler);
 

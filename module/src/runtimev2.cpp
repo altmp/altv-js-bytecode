@@ -1,11 +1,11 @@
-#include "runtime.h"
+#include "runtimev2.h"
 #include "Log.h"
 #include "compiler.h"
 #include "CScriptRuntimeInfo.h"
 #include "package.h"
 #include "logger.h"
 
-void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackage* package)
+void JSBytecodeRuntimeV2::ProcessClientFile(alt::IResource* resource, alt::IPackage* package)
 {
     v8::Isolate* isolate = CScriptRuntimeInfo::Instance().GetIsolate();
     v8::Isolate::Scope isolateScope(isolate);
@@ -19,7 +19,7 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
 
     Config::Value::ValuePtr config = resource->GetConfig();
     // Get ignored files
-    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared" };
+    std::vector<std::string> ignoredModules = { "alt", "alt-client", "natives", "alt-worker", "alt-shared", "@altv/client", "@altv/server", "@altv/shared", "@altv/natives" };
     Config::Value::ValuePtr ignoredFiles = config->Get("ignored-files");
     Config::Value::Bool verboseLogging = config->Get("verbose")->AsBool(false);
 
@@ -83,8 +83,8 @@ void JSBytecodeRuntime::ProcessClientFile(alt::IResource* resource, alt::IPackag
     compilerLogger.Log("Converted " + std::to_string(compiledFiles.size()) + " script files to bytecode");
 }
 
-bool JSBytecodeRuntime::GetProcessClientType(std::string& clientType)
+bool JSBytecodeRuntimeV2::GetProcessClientType(std::string& clientType)
 {
-    clientType = "jsb";
+    clientType = "jsv2b";
     return true;
 }

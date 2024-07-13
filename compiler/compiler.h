@@ -68,7 +68,7 @@ namespace BytecodeCompiler
             return magicBytes;
         }
 
-        bool CompileModule(const std::string& fileName, bool compileDependencies = true);
+        bool CompileModule(const std::string& fileName, bool compileDependencies = true, bool verbose = false);
 
         bool IsBytecodeFile(void* buffer, size_t size);
 
