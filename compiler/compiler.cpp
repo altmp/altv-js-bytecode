@@ -5,7 +5,7 @@
 
 using namespace BytecodeCompiler;
 
-bool Compiler::CompileModule(const std::string& fileName, bool compileDependencies)
+bool Compiler::CompileModule(const std::string& fileName, bool compileDependencies, bool verbose)
 {
     // Read the file
     if(!package->FileExists(fileName))
@@ -61,7 +61,11 @@ bool Compiler::CompileModule(const std::string& fileName, bool compileDependenci
     cache->buffer_policy = v8::ScriptCompiler::CachedData::BufferPolicy::BufferOwned;
     delete cache;
 
-    logger->Log("Converted file to bytecode: " + logger->GetHighlightColor() + fileName);
+    if (verbose)
+    {
+        logger->Log("Converted file to bytecode: " + logger->GetHighlightColor() + fileName);
+    }
+
     compiledFiles.push_back(fileName);
 
     // Compile all dependencies
