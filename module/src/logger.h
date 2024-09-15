@@ -5,7 +5,7 @@
 
 class Logger : public BytecodeCompiler::ILogger
 {
-    static constexpr const char* prefix = "[V8 Bytecode] ";
+    static constexpr const char* prefix = "[V8 Bytecode]";
 
 public:
     std::string GetHighlightColor() override
@@ -15,10 +15,10 @@ public:
 
     void Log(const std::string& message) override
     {
-        alt::ICore::Instance().LogColored(GetHighlightColor() + prefix + "~w~" + message);
+        alt::ICore::Instance().LogColored(prefix, message);
     }
     void LogError(const std::string& message) override
     {
-        alt::ICore::Instance().LogError(std::string(prefix) + " " + message);
+        alt::ICore::Instance().LogError(std::string(prefix), message);
     }
 };
