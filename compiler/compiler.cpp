@@ -135,7 +135,7 @@ std::vector<uint8_t> Compiler::CreateBytecodeBuffer(const uint8_t* buffer, int l
 
 static constexpr int srcHashOffset = 8;
 
-static constexpr uint32_t flagsHash = 243571335;
+static constexpr uint32_t flagsHash = 700872405;
 static constexpr int flagsHashOffset = 12;
 
 void Compiler::FixBytecode(const uint8_t* buffer, int sourceLength)
